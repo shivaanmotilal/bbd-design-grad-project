@@ -1,4 +1,4 @@
-package za.co.bbd.wallet.model;
+package za.co.bbd.wallet.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -9,8 +9,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -25,9 +26,10 @@ import java.util.UUID;
         "dateInitiation",
         "dateSettlement",
         "settled"})
-@Getter
-@Setter
-public class Transaction {
+@AllArgsConstructor
+@Data
+@Builder
+public class TransactionDto {
 
     @ApiModelProperty(name = "transaction-id", required = true, example = "3b385ef0-d76c-4f0f-add8-b4ecf41874d6",
             notes = "The unique id of the transaction")
@@ -35,17 +37,29 @@ public class Transaction {
     @NotNull
     private UUID transactionId;
 
-    @ApiModelProperty(name = "from-account", required = true,
+    @ApiModelProperty(name = "from-account-number", required = true,
             notes = "The account funds are coming from")
-    @JsonProperty(value = "from-account", required = true)
+    @JsonProperty(value = "from-account-number", required = true)
     @NotNull
-    private TransactionAccount fromAccount;
+    private String fromAccountNumber;
 
-    @ApiModelProperty(name = "to-account", required = true,
-            notes = "The account funds are going to")
-    @JsonProperty(value = "to-account", required = true)
+    @ApiModelProperty(name = "from-account-opening-balance", required = true,
+            notes = "The account funds are coming from")
+    @JsonProperty(value = "from-account-opening-balance", required = true)
     @NotNull
-    private TransactionAccount toAccount;
+    private String fromAccountOpeningBalance;
+
+    @ApiModelProperty(name = "to-account-number", required = true,
+            notes = "The account funds are going to")
+    @JsonProperty(value = "to-account-number", required = true)
+    @NotNull
+    private String toAccountNumber;
+
+    @ApiModelProperty(name = "to-account-opening-balance", required = true,
+            notes = "The account funds are going to")
+    @JsonProperty(value = "to-account-opening-balance", required = true)
+    @NotNull
+    private String toAccountOpeningBalance;
 
     @ApiModelProperty(name = "amount", required = true, example = "500.00",
             notes = "The transaction amount")
@@ -75,78 +89,26 @@ public class Transaction {
     @NotNull
     private boolean settled;
 
-    public Transaction() {
+    public TransactionDto() {
         this.transactionId = UUID.randomUUID();
     }
 
-    public Transaction(
-            @NotNull TransactionAccount fromAccount,
-            @NotNull TransactionAccount toAccount,
+    public TransactionDto(
+            @NotNull String fromAccountNumber,
+            @NotNull String fromAccountOpeningBalance,
+            @NotNull String toAccountNumber,
+            @NotNull String toAccountOpeningBalance,
             @NotNull double amount,
             LocalDate dateInitiation,
             LocalDate dateSettlement) {
-        this.transactionId = UUID.randomUUID();;
-        this.fromAccount = fromAccount;
-        this.toAccount = toAccount;
+        this.transactionId = UUID.randomUUID();
+        this.fromAccountNumber = fromAccountNumber;
+        this.fromAccountOpeningBalance = fromAccountOpeningBalance;
+        this.toAccountNumber = toAccountNumber;
+        this.toAccountOpeningBalance = toAccountOpeningBalance;
         this.amount = amount;
         this.dateInitiation = dateInitiation;
         this.dateSettlement = dateSettlement;
         this.settled = false;
-    }
-
-    public UUID getTransactionId() {
-        return transactionId;
-    }
-
-    public TransactionAccount getFromAccount() {
-        return fromAccount;
-    }
-
-    public TransactionAccount getToAccount() {
-        return toAccount;
-    }
-
-    public double getAmount() {
-        return amount;
-    }
-
-    public LocalDate getDateInitiation() {
-        return dateInitiation;
-    }
-
-    public LocalDate getDateSettlement() {
-        return dateSettlement;
-    }
-
-    public boolean isSettled() {
-        return settled;
-    }
-
-    public void setTransactionId(UUID transactionId) {
-        this.transactionId = transactionId;
-    }
-
-    public void setFromAccount(TransactionAccount fromAccount) {
-        this.fromAccount = fromAccount;
-    }
-
-    public void setToAccount(TransactionAccount toAccount) {
-        this.toAccount = toAccount;
-    }
-
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
-
-    public void setDateInitiation(LocalDate dateInitiation) {
-        this.dateInitiation = dateInitiation;
-    }
-
-    public void setDateSettlement(LocalDate dateSettlement) {
-        this.dateSettlement = dateSettlement;
-    }
-
-    public void setSettled(boolean settled) {
-        this.settled = settled;
     }
 }

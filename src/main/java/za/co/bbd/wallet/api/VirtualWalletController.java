@@ -5,65 +5,90 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import za.co.bbd.wallet.model.Account;
-import za.co.bbd.wallet.model.Transaction;
-import za.co.bbd.wallet.model.User;
+import za.co.bbd.wallet.dto.AccountDto;
+import za.co.bbd.wallet.dto.CustomerDto;
+import za.co.bbd.wallet.dto.TransactionDto;
+import za.co.bbd.wallet.repository.AccountRepository;
+import za.co.bbd.wallet.repository.CustomerRepository;
 
 import javax.annotation.PostConstruct;
 import javax.jws.WebMethod;
 import javax.jws.WebResult;
 import javax.jws.WebService;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController("wallet.api.VirtualWalletController")
 @RequestMapping(value = "/wallet/api")
 @WebService(serviceName = "VirtualWallet", name = "VirtualWallet", targetNamespace = "http://virtual.wallet.bbd")
 @Slf4j
 public class VirtualWalletController {
-    private List<User> users = new ArrayList<>();
-    private List<Transaction> transactions = new ArrayList<>();
-    private List<Account> accounts = new ArrayList<>();
+    private List<CustomerDto> customerDtos = new ArrayList<>();
+    private List<TransactionDto> transactionDtos = new ArrayList<>();
+    private List<AccountDto> accountDtos = new ArrayList<>();
 
-    private Account account;
+    private AccountDto accountDto;
+
+    private CustomerRepository customerRepository;
+    private AccountRepository accountRepository;
+
+    @Autowired
+    public VirtualWalletController(@Qualifier("wallet.CustomerRepository") CustomerRepository customerRepository, AccountRepository accountRepository) {
+        this.customerRepository = customerRepository;
+        this.accountRepository = accountRepository;
+    }
 
     //This will 100% be removed:
     @PostConstruct
     public void fakeDataSetup() {
-        account = new Account("10001284657", 1000000, 10000, new ArrayList<>());
-        User user = new User("5000123", "The Lauren", "Barger", "0716823276", "lauren@bbd.co.za", "1234", new ArrayList<>());
-        user.addAccounts(account);
-        users.add(user);
-        accounts.add(account);
+        accountDto = new AccountDto();
+//        accountDto.setAccountName("Spoils of War");
+        accountDto.setAccountNumber("10001284657");
+        accountDto.setBalance(1000000);
+        accountDto.setAvailableBalance(1000);
+//        accountDto.setOverdraftLimit(3000);
+        accountDto.setTransactions(new ArrayList<>());
+
+        CustomerDto customerDto = new CustomerDto();
+        customerDto.setCustomerId("5000123");
+        customerDto.setFirstName("The Lauren");
+        customerDto.setSurname("Barger");
+        customerDto.setPhoneNumber("0716823276");
+        customerDto.setEmail("lauren@bbd.co.za");
+        customerDto.setPassword("1234");
+        customerDto.setAccountDtos(Collections.singletonList(accountDto));
+
+        customerDtos.add(customerDto);
     }
 
-    @ApiOperation(value = "Retrieve the account details for a specific account number", notes = "Retrieve the information associated with a specific account")
-    @RequestMapping(value = "/account/{account-number}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Retrieve the accountDto details for a specific accountDto number", notes = "Retrieve the information associated with a specific accountDto")
+    @RequestMapping(value = "/accountDto/{accountDto-number}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @WebMethod(operationName = "GetAccount")
-    @WebResult(name = "Account")
-    public Account getAccount(
-            @ApiParam(name = "account-number", value = "The account number", required = true)
-            @PathVariable(name = "account-number") String accountNumber) {
+    @WebResult(name = "AccountEntity")
+    public AccountDto getAccount(
+            @ApiParam(name = "accountDto-number", value = "The accountDto number", required = true)
+            @PathVariable(name = "accountDto-number") String accountNumber) {
 
-        if (accountNumber.equals(account.getAccountNumber())) {
-            return account;
+        if (accountNumber.equals(accountDto.getAccountNumber())) {
+            return accountDto;
         } else {
             return null;
         }
     }
 
-    @ApiOperation(value = "Create a new User", notes = "Create a new User")
+    @ApiOperation(value = "Create a new CustomerEntity", notes = "Create a new CustomerEntity")
     @RequestMapping(value = "/user/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @WebMethod(operationName = "CreateUser")
-    @WebResult(name = "Account")
+    @WebResult(name = "AccountEntity")
     @ResponseStatus(value = HttpStatus.CREATED)
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Created") ,
-            @ApiResponse(code = 302, message = "User already exists") ,
+            @ApiResponse(code = 302, message = "CustomerEntity already exists") ,
             @ApiResponse(code = 400, message = "Passwords do not match") ,
             @ApiResponse(code = 500, message = "The VirtualWallet is unable to process your request due to an internal service error") })
     public String createUser(
@@ -83,9 +108,17 @@ public class VirtualWalletController {
         Random rand = new Random();
         String userId = "5000" + rand.nextInt(1000);
 
-        User user = new User(userId, firstName, surname,email, phoneNumber, password, new ArrayList<>());
+        CustomerDto customerDto = CustomerDto.builder()
+                .customerId(userId)
+                .firstName(firstName)
+                .surname(surname)
+                .email(email)
+                .phoneNumber(phoneNumber)
+                .password(password)
+                .accountDtos(new ArrayList<>())
+                .build();
 
-        if (users.stream().filter(u -> u.equals(user)).findFirst().orElse(null) != null) {
+        if (customerDtos.stream().filter(u -> u.equals(customerDto)).findFirst().orElse(null) != null) {
             return null;
         }
 
@@ -93,26 +126,46 @@ public class VirtualWalletController {
             return null;
         }
 
-        users.add(user);
+        customerDtos.add(customerDto);
 
-        return user.getUserId();
+        return customerDto.getCustomerId();
     }
 
     @ApiOperation(value = "Retrieve user details", notes = "Retrieve user details")
     @RequestMapping(value = "/user/{user-id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @WebMethod(operationName = "GetUser")
-    @WebResult(name = "User")
-    public User getUser(
+    @WebResult(name = "CustomerEntity")
+    public CustomerDto getUser(
             @ApiParam(name = "user-id", value = "The user id", required = true)
             @PathVariable(name = "user-id") String userId,
             @ApiParam(name = "password", value = "The user password", required = true)
             @RequestHeader(name = "password") String password){
 
-        return users.stream()
-                .filter(u -> u.getUserId().equals(userId) && u.getPassword().equals(password))
-                .findFirst()
-                .orElse(null);
+        var customerOptional = customerRepository.findById(userId);
+        if (customerOptional.isEmpty()) {
+            return null;
+        }
+        var customer = customerOptional.get();
 
+        return CustomerDto.builder()
+                .customerId(customer.getCustomerId())
+                .password(customer.getPassword())
+                .firstName(customer.getFirstName())
+                .surname(customer.getSurname())
+                .email(customer.getEmail())
+                .phoneNumber(customer.getPhoneNumber())
+                .accountDtos(customer.getAccounts().stream().map(account ->
+                        AccountDto.builder()
+                            .accountNumber(account.getAccountNumber())
+                            .balance(account.getBalance())
+                            .availableBalance(account.getAvailableBalance())
+                            .closed(account.isClosed())
+                            .transactions(account.getTransactions().stream().map(
+                                transactionEntity -> UUID.fromString(transactionEntity.getTransactionId())
+                            ).collect(Collectors.toList()))
+                            .build()
+                ).collect(Collectors.toList()))
+                .build();
     }
 
 }

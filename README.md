@@ -34,3 +34,10 @@ found in the project root after building:
 ```shell
 java -jar wallet-0.0.1-SNAPSHOT.jar
 ```
+
+### H2 Console Configs
+
+Change this field on localhost:8080/h2-console/login.jsp
+```
+JDBC URL : jdbc:h2:mem:testdb
+```
