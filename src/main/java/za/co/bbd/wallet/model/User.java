@@ -24,10 +24,10 @@ import java.util.List;
         "surname",
         "email",
         "phoneNumber",
+        "password",
         "accounts"})
 @Getter
 @Setter
-@Entity
 public class User {
 
     @ApiModelProperty(name = "user-id", required = true, example = "5000328",
@@ -36,8 +36,6 @@ public class User {
     @NotNull
     @Size(min = 7, max = 7)
     @Pattern(message = "invalid user id", regexp = "^(5[0]{3}[0-9]{3})")
-    @Id
-    @GeneratedValue
     private String userId;
 
     @ApiModelProperty(name = "first-name", required = true, example = "Shai",
@@ -69,17 +67,23 @@ public class User {
             notes = "The list of accounts associated with the user")
     @JsonProperty(value = "accounts", required = true)
     @NotNull
-    @OneToMany
     private List<Account> accounts;
 
-    public void User() { }
+    @ApiModelProperty(name = "password", required = true,
+            notes = "Password associated with the user")
+    @JsonProperty(value = "password", required = true)
+    @NotNull
+    private String password;
 
-    public void User(String userId, String firstName, String surname, String email, String phoneNumber, List<Account> accounts) {
+    public User() { }
+
+    public User(String userId, String firstName, String surname, String email, String phoneNumber, String password, List<Account> accounts) {
         this.userId = userId;
         this.firstName = firstName;
         this.surname = surname;
         this.email = email;
         this.phoneNumber = phoneNumber;
+        this.password = password;
         this.accounts = accounts;
     }
 
@@ -102,6 +106,8 @@ public class User {
     public String getPhoneNumber() {
         return phoneNumber;
     }
+
+    public String getPassword() { return password; }
 
     public List<Account> getAccounts() {
         return accounts;
@@ -127,6 +133,10 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public void setAccounts(List<Account> accounts) {
         this.accounts = accounts;
     }
@@ -136,5 +146,16 @@ public class User {
             this.accounts = new ArrayList<>();
         }
         this.accounts.add(account);
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj) { return true; }
+        if (!(obj instanceof User)) { return false; }
+        User other = ((User) obj);
+        return (this.firstName.equals(other.getFirstName()) &&
+                this.surname.equals(other.getSurname()) &&
+                this.email.equals(other.getEmail()));
     }
 }
