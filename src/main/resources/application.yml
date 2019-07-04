@@ -1,0 +1,11 @@
+application:
+  swagger:
+    enabled: true
+    regexPathExclusion: (/actuator.*|/error.*)
+    version: @project.version@
+    title: @project.name@
+    description: Swagger documentation for @project.description@
+    license:
+    contact:
+      name: Virtual Wallet Team
+      email: NOREFUNDS@wallet.bbd
