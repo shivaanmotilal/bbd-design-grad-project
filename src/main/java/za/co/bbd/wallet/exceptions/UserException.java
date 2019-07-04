@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(
         value = HttpStatus.FOUND,
-        reason = "User already exists"
+        reason = "CustomerEntity already exists"
 )
 public class UserException extends Exception {
     public UserException() { super(); }

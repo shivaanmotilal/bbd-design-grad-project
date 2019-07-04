@@ -1,7 +1,5 @@
 package za.co.bbd.wallet.entity;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.*;
 
 import javax.persistence.Entity;
@@ -14,12 +12,13 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Entity
-public class User {
+@Builder
+@Entity(name = "Customer")
+public class CustomerEntity {
 
     @Id
     @GeneratedValue
-    private String userId;
+    private String customerId;
 
     private String firstName;
 
@@ -30,7 +29,7 @@ public class User {
     private String phoneNumber;
 
     @OneToMany
-    private List<Account> accounts = new ArrayList<>();
+    private List<AccountEntity> accounts = new ArrayList<>();
 
     private String password;
 }
