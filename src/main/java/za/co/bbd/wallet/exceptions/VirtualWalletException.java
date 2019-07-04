@@ -8,7 +8,7 @@ import java.util.List;
 
 @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR,
         reason = "An internal Virtual Wallet error has occurred")
-public class VirtualWalletException {
+public class VirtualWalletException extends Exception{
 
     private HttpStatus status;
     private String message;
