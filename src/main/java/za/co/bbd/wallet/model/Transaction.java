@@ -11,28 +11,20 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import za.co.bbd.wallet.enums.TransactionType;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
         "transactionId",
-        "primaryAccountHolderId",
-        "primaryAccountNumber",
-        "balance",
+        "fromAccount",
+        "toAccount",
         "amount",
-        "secondaryAccountHolder",
-        "secondaryAccountNumber",
         "dateInitiation",
         "dateSettlement",
-        "reference",
-        "settled",
-        "authorized"})
+        "settled"})
 @Getter
 @Setter
 public class Transaction {
@@ -43,47 +35,23 @@ public class Transaction {
     @NotNull
     private UUID transactionId;
 
-    @ApiModelProperty(name = "transaction-type", required = true, example = "TRANSFER",
-            notes = "The category of transaction")
-    @JsonProperty(value = "transaction-type", required = true)
+    @ApiModelProperty(name = "from-account", required = true,
+            notes = "The account funds are coming from")
+    @JsonProperty(value = "from-account", required = true)
     @NotNull
-    private TransactionType transactionType;
+    private TransactionAccount fromAccount;
 
-    @ApiModelProperty(name = "primary-account-holder-id", required = true, example = "5000654",
-            notes = "The account holder ID")
-    @Pattern(message = "invalid account holder id", regexp = "^(5[0]{3}[0-9]{3})")
-    @JsonProperty(value = "primary-account-holder-id", required = true)
+    @ApiModelProperty(name = "to-account", required = true,
+            notes = "The account funds are going to")
+    @JsonProperty(value = "to-account", required = true)
     @NotNull
-    private String primaryAccountHolderId;
-
-    @ApiModelProperty(name = "primary-account-number", required = true, example = "10001288757",
-            notes = "The unique id of the transaction")
-    @JsonProperty(value = "primary-account-number", required = true)
-    @NotNull
-    private String primaryAccountNumber;
-
-    @ApiModelProperty(name = "balance", required = true, example = "30000.00",
-            notes = "The available balance remaining in the account")
-    @JsonProperty(value = "balance", required = true)
-    @NotNull
-    private double balance;
+    private TransactionAccount toAccount;
 
     @ApiModelProperty(name = "amount", required = true, example = "500.00",
             notes = "The transaction amount")
     @JsonProperty(value = "amount", required = true)
     @NotNull
     private double amount;
-
-    @ApiModelProperty(name = "secondary-account-holder", required = true, example = "John",
-            notes = "The account holder name of the alternative party of the transaction")
-    @JsonProperty(value = "secondary-account-holder", required = true)
-    private String secondaryAccountHolder;
-
-    @ApiModelProperty(name = "secondary-account-number", required = true, example = "10001284657",
-            notes = "The account number of the alternative party of the transaction")
-    @JsonProperty(value = "secondary-account-number", required = true)
-    @Pattern(message = "invalid account number", regexp = "^(1[0]{3}[0-9]{7})")
-    private String secondaryAccountNumber;
 
     @ApiModelProperty(name = "date-initiation", required = true, example = "2019-05-30",
             notes = "The date on which the transaction was initiated")
@@ -101,22 +69,84 @@ public class Transaction {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDate dateSettlement;
 
-    @ApiModelProperty(name = "reference", required = true, example = "TO THE VICTOR GO THE SPOILS",
-            notes = "A brief description of the transaction")
-    @JsonProperty(value = "reference", required = true)
-    @Size(max = 30)
-    private String reference;
-
     @ApiModelProperty(name = "settled", required = true, example = "true",
             notes = "Whether or not the transaction has been settled")
     @JsonProperty(value = "settled", required = true)
     @NotNull
     private boolean settled;
 
-    @ApiModelProperty(name = "authorized", required = true, example = "false",
-            notes = "Whether or not the transaction has been authorized")
-    @JsonProperty(value = "authorized", required = true)
-    @NotNull
-    private boolean authorized;
+    public Transaction() {
+        this.transactionId = UUID.randomUUID();
+    }
 
+    public Transaction(
+            @NotNull TransactionAccount fromAccount,
+            @NotNull TransactionAccount toAccount,
+            @NotNull double amount,
+            LocalDate dateInitiation,
+            LocalDate dateSettlement) {
+        this.transactionId = UUID.randomUUID();;
+        this.fromAccount = fromAccount;
+        this.toAccount = toAccount;
+        this.amount = amount;
+        this.dateInitiation = dateInitiation;
+        this.dateSettlement = dateSettlement;
+        this.settled = false;
+    }
+
+    public UUID getTransactionId() {
+        return transactionId;
+    }
+
+    public TransactionAccount getFromAccount() {
+        return fromAccount;
+    }
+
+    public TransactionAccount getToAccount() {
+        return toAccount;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public LocalDate getDateInitiation() {
+        return dateInitiation;
+    }
+
+    public LocalDate getDateSettlement() {
+        return dateSettlement;
+    }
+
+    public boolean isSettled() {
+        return settled;
+    }
+
+    public void setTransactionId(UUID transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public void setFromAccount(TransactionAccount fromAccount) {
+        this.fromAccount = fromAccount;
+    }
+
+    public void setToAccount(TransactionAccount toAccount) {
+        this.toAccount = toAccount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public void setDateInitiation(LocalDate dateInitiation) {
+        this.dateInitiation = dateInitiation;
+    }
+
+    public void setDateSettlement(LocalDate dateSettlement) {
+        this.dateSettlement = dateSettlement;
+    }
+
+    public void setSettled(boolean settled) {
+        this.settled = settled;
+    }
 }

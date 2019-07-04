@@ -11,14 +11,14 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.List;
+import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
         "accountNumber",
-        "accountName",
         "balance",
-        "minimumDeposit",
-        "overdraftLimit",
+        "availableBalance",
+        "closed",
         "transactions"})
 @Getter
 @Setter
@@ -32,35 +32,29 @@ public class Account {
     @Pattern(message = "invalid account number", regexp = "^(1[0]{5}[0-9]{6})$")
     private String accountNumber;
 
-    @ApiModelProperty(name = "account-name", required = true, example = "Savings for the Apocalypse",
-            notes = "The personalised name of the account chosen for by the client")
-    @JsonProperty(value = "account-name", required = true)
-    @NotNull
-    private String accountName;
-
     @ApiModelProperty(name = "balance", required = true, example = "30000.00",
-            notes = "The available balance for the account")
+            notes = "The balance for the account")
     @JsonProperty(value = "balance", required = true)
     @NotNull
     private double balance;
 
-    @ApiModelProperty(name = "minimum-deposit", required = true, example = "1000.00",
-            notes = "The minimum deposit necessary for the account")
-    @JsonProperty(value = "minimum-deposit", required = true)
+    @ApiModelProperty(name = "available-balance", required = true, example = "900.00",
+            notes = "The account available balance")
+    @JsonProperty(value = "available-balance", required = true)
     @NotNull
-    private double minimumDeposit;
+    private double availableBalance;
 
-    @ApiModelProperty(name = "overdraft-limit", required = true, example = "30000.00",
-            notes = "The maximum available overdraft for the account")
-    @JsonProperty(value = "overdraft-limit", required = true)
+    @ApiModelProperty(name = "closed", required = true, example = "false",
+            notes = "Whether or not the account has been closed")
+    @JsonProperty(value = "closed", required = true)
     @NotNull
-    private double overdraftLimit;
+    private boolean closed;
 
     @ApiModelProperty(name = "transactions", required = true,
-            notes = "A history of recent transactions for the account")
+            notes = "A list of transactions associated with the account")
     @JsonProperty(value = "transactions", required = true)
     @NotNull
-    private List<Transaction> transactions;
+    private List<UUID> transactions;
 
     /**
      * Constructs a new <code>Account</code>.
@@ -71,18 +65,15 @@ public class Account {
      * Constructs a new <code>Account</code>.
      *
      * @param accountNumber     the unique account number
-     * @param accountName       the personal name of the account
      * @param balance           the current balance of the account
-     * @param minimumDeposit    the minimum deposit required to open the account
-     * @param overdraftLimit    the overdraft limit for this particular account
+     * @param availableBalance  the available amount in the account
      * @param transactions      the recent transactions of the account
      */
-    public Account(String accountNumber, String accountName, double balance, double minimumDeposit, double overdraftLimit, List<Transaction> transactions) {
+    public Account(String accountNumber, double balance, double availableBalance, List<UUID> transactions) {
         this.accountNumber = accountNumber;
-        this.accountName = accountName;
         this.balance = balance;
-        this.minimumDeposit = minimumDeposit;
-        this.overdraftLimit = overdraftLimit;
+        this.availableBalance = availableBalance;
+        this.closed = false;
         this.transactions = transactions;
     }
 
@@ -96,13 +87,6 @@ public class Account {
     }
 
     /**
-     * Retrieve the account name.
-     *
-     * @return the account name
-     */
-    public String getAccountName() { return this.accountName; }
-
-    /**
      * Retrieve the account balance.
      *
      * @return the account balance
@@ -114,21 +98,21 @@ public class Account {
      *
      * @return the minimum deposit
      */
-    public double getMinimumDeposit() { return this.minimumDeposit; }
+    public double getAvailableBalance() { return this.availableBalance; }
 
     /**
-     * Retrieve the overdraft limit.
+     * Determine whether or not the account is closed
      *
      * @return the overdraft limit
      */
-    public double getOverdraftLimit() { return this.overdraftLimit; }
+    public boolean getOverdraftLimit() { return this.closed; }
 
     /**
      * Retrieve the transactions.
      *
      * @return the transactions
      */
-    public List<Transaction> getTransactions() { return this.transactions; }
+    public List<UUID> getTransactions() { return this.transactions; }
 
     /**
      * Set the account number.
@@ -136,13 +120,6 @@ public class Account {
      * @param accountNumber     the account number
      */
     public void setAccountNumber(String accountNumber) { this.accountNumber = accountNumber; }
-
-    /**
-     * Set the account name.
-     *
-     * @param accountName     the account name
-     */
-    public void setAccountName(String accountName) { this.accountName = accountName; }
 
     /**
      * Set the account balance.
@@ -154,31 +131,34 @@ public class Account {
     /**
      * Set the minimum deposit.
      *
-     * @param minimumDeposit     the minimum deposit
+     * @param availableBalance     the minimum deposit
      */
-    public void setMinimumDeposit(double minimumDeposit) { this.minimumDeposit = minimumDeposit; }
+    public void setAvailableBalance(double availableBalance) { this.availableBalance = availableBalance; }
 
     /**
      * Set the overdraft limit.
-     *
-     * @param overdraftLimit    the overdraft limit
      */
-    public void setOverdraftLimit(double overdraftLimit) { this.overdraftLimit = overdraftLimit; }
+    public void closeAccount() { this.closed = true; }
+
+    /**
+     * Set the overdraft limit.
+     */
+    public void openAccount() { this.closed = false; }
 
     /**
      * Set the transaction list.
      *
      * @param transactions      the transaction list
      */
-    public void setTransactions(List<Transaction> transactions) { this.transactions = transactions; }
+    public void setTransactions(List<UUID> transactions) { this.transactions = transactions; }
 
     /**
      * Add a new transaction to the account.
      *
-     * @param transaction       the property
+     * @param transactionId       the transaction id to be added
      */
-    public void addTransaction(Transaction transaction) {
-        transactions.add(transaction);
+    public void addTransaction(UUID transactionId) {
+        transactions.add(transactionId);
     }
 
 
