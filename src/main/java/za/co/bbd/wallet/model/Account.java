@@ -7,6 +7,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -22,6 +25,7 @@ import java.util.List;
         "transactions"})
 @Getter
 @Setter
+@Entity
 public class Account {
 
     @ApiModelProperty(name = "account-number", required = true, example = "10001284657",
@@ -30,6 +34,7 @@ public class Account {
     @NotNull
     @Size(min = 11, max = 11)
     @Pattern(message = "invalid account number", regexp = "^(1[0]{5}[0-9]{6})$")
+    @Id
     private String accountNumber;
 
     @ApiModelProperty(name = "account-name", required = true, example = "Savings for the Apocalypse",
@@ -60,6 +65,7 @@ public class Account {
             notes = "A history of recent transactions for the account")
     @JsonProperty(value = "transactions", required = true)
     @NotNull
+    @OneToMany
     private List<Transaction> transactions;
 
     /**

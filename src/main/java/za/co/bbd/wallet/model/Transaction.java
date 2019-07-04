@@ -13,6 +13,9 @@ import lombok.Getter;
 import lombok.Setter;
 import za.co.bbd.wallet.enums.TransactionType;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -35,12 +38,15 @@ import java.util.UUID;
         "authorized"})
 @Getter
 @Setter
+@Entity
 public class Transaction {
 
     @ApiModelProperty(name = "transaction-id", required = true, example = "3b385ef0-d76c-4f0f-add8-b4ecf41874d6",
             notes = "The unique id of the transaction")
     @JsonProperty(value = "transaction-id", required = true)
     @NotNull
+    @Id
+    @GeneratedValue
     private UUID transactionId;
 
     @ApiModelProperty(name = "transaction-type", required = true, example = "TRANSFER",

@@ -9,3 +9,7 @@ application:
     contact:
       name: Virtual Wallet Team
       email: NOREFUNDS@wallet.bbd
+spring:
+  h2:
+    console:
+      enabled: true
