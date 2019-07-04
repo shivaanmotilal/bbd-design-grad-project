@@ -34,24 +34,11 @@ public class VirtualWalletController {
     //This will 100% be removed:
     @PostConstruct
     public void fakeDataSetup() {
-        account = new Account();
-        account.setAccountName("Spoils of War");
-        account.setAccountNumber("10001284657");
-        account.setBalance(1000000);
-        account.setAvailableBalance(1000);
-        account.setOverdraftLimit(3000);
-        account.setTransactions(new ArrayList<>());
-
-        User user = new User();
-        user.setUserId("5000123");
-        user.setFirstName("The Lauren");
-        user.setSurname("Barger");
-        user.setPhoneNumber("0716823276");
-        user.setEmail("lauren@bbd.co.za");
-        user.setPassword("1234");
+        account = new Account("10001284657", 1000000, 10000, new ArrayList<>());
+        User user = new User("5000123", "The Lauren", "Barger", "0716823276", "lauren@bbd.co.za", "1234", new ArrayList<>());
         user.addAccounts(account);
-
         users.add(user);
+        accounts.add(account);
     }
 
     @ApiOperation(value = "Retrieve the account details for a specific account number", notes = "Retrieve the information associated with a specific account")
