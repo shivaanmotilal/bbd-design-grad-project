@@ -2,8 +2,6 @@ package za.co.bbd.wallet.api;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,95 +10,47 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import za.co.bbd.wallet.dto.AccountDto;
 import za.co.bbd.wallet.dto.CustomerDto;
+import za.co.bbd.wallet.dto.NewCustomerDto;
 import za.co.bbd.wallet.dto.TransactionDto;
+import za.co.bbd.wallet.entity.CustomerEntity;
+import za.co.bbd.wallet.entity.TransactionEntity;
+import za.co.bbd.wallet.exceptions.BadRequestException;
 import za.co.bbd.wallet.exceptions.ForbiddenException;
 import za.co.bbd.wallet.exceptions.NotFoundException;
 import za.co.bbd.wallet.repository.AccountRepository;
 import za.co.bbd.wallet.repository.CustomerRepository;
+import za.co.bbd.wallet.repository.TransactionRepository;
 
 import javax.jws.WebMethod;
 import javax.jws.WebResult;
 import javax.jws.WebService;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController("wallet.api.VirtualWalletController")
 @RequestMapping(value = "/wallet/api")
 @WebService(serviceName = "VirtualWallet", name = "VirtualWallet", targetNamespace = "http://virtual.wallet.bbd")
 @Slf4j
+@SuppressWarnings("Duplicates")
 public class VirtualWalletController {
-    private List<CustomerDto> customerDtos = new ArrayList<>();
-    private List<TransactionDto> transactionDtos = new ArrayList<>();
-    private List<AccountDto> accountDtos = new ArrayList<>();
-
-    private AccountDto accountDto;
-
     private CustomerRepository customerRepository;
     private AccountRepository accountRepository;
+    private TransactionRepository transactionRepository;
 
     @Autowired
-    public VirtualWalletController(@Qualifier("wallet.CustomerRepository") CustomerRepository customerRepository, AccountRepository accountRepository) {
+    public VirtualWalletController(
+            @Qualifier("wallet.AccountRepository") AccountRepository accountRepository,
+            @Qualifier("wallet.CustomerRepository") CustomerRepository customerRepository,
+            @Qualifier("wallet.TransactionRepository") TransactionRepository transactionRepository) {
         this.customerRepository = customerRepository;
         this.accountRepository = accountRepository;
-    }
-
-    @ApiOperation(value = "Create a new CustomerEntity", notes = "Create a new CustomerEntity")
-    @RequestMapping(value = "/user/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    @WebMethod(operationName = "CreateUser")
-    @WebResult(name = "AccountEntity")
-    @ResponseStatus(value = HttpStatus.CREATED)
-    @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Created") ,
-            @ApiResponse(code = 302, message = "CustomerEntity already exists") ,
-            @ApiResponse(code = 400, message = "Passwords do not match") ,
-            @ApiResponse(code = 500, message = "The VirtualWallet is unable to process your request due to an internal service error") })
-    public String createUser(
-            @ApiParam(name = "first-name", value = "The first name of the user", required = true)
-            @RequestHeader(name = "first-name") String firstName,
-            @ApiParam(name = "surname", value = "The surname of the user", required = true)
-            @RequestHeader(name = "surname") String surname,
-            @ApiParam(name = "email", value = "The email address of the user", required = true)
-            @RequestHeader(name = "email") String email,
-            @ApiParam(name = "phone-number", value = "The phone number of the user", required = true)
-            @RequestHeader(name = "phone-number") String phoneNumber,
-            @ApiParam(name = "password", value = "The chosen password of the user", required = true)
-            @RequestHeader(name = "password") String password,
-            @ApiParam(name = "confirm-password", value = "The confirmation of the password chosen by the user", required = true)
-            @RequestHeader(name = "confirm-password") String confirmPassword) {
-
-        Random rand = new Random();
-        String userId = "5000" + rand.nextInt(1000);
-
-        CustomerDto customerDto = CustomerDto.builder()
-                .customerId(userId)
-                .firstName(firstName)
-                .surname(surname)
-                .email(email)
-                .phoneNumber(phoneNumber)
-                .password(password)
-                .accountDtos(new ArrayList<>())
-                .build();
-
-        if (customerDtos.stream().filter(u -> u.equals(customerDto)).findFirst().orElse(null) != null) {
-            return null;
-        }
-
-        if (!password.equals(confirmPassword)) {
-            return null;
-        }
-
-        customerDtos.add(customerDto);
-
-        return customerDto.getCustomerId();
+        this.transactionRepository = transactionRepository;
     }
 
     @ApiOperation(value = "Retrieve customer details", notes = "Retrieve customer details")
     @RequestMapping(value = "/customer/{customer-id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @WebMethod(operationName = "GetUser")
-    @WebResult(name = "CustomerEntity")
+    @WebResult(name = "Customer")
     public CustomerDto getUser(
             @ApiParam(name = "customer-id", value = "The customer id", required = true)
             @PathVariable(name = "customer-id") String customerId,
@@ -138,9 +88,9 @@ public class VirtualWalletController {
     }
 
     @ApiOperation(value = "Retrieve user accounts", notes = "Retrieve user accounts")
-    @RequestMapping(value = "/user/accounts/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/accounts/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @WebMethod(operationName = "GetAccounts")
-    @WebResult(name = "AccountEntity")
+    @WebResult(name = "Account")
     public List<AccountDto> getAccounts(
             @ApiParam(name = "user-id", value = "The user id", required = true)
             @RequestHeader(name = "user-id") String userId,
@@ -169,12 +119,10 @@ public class VirtualWalletController {
                 ).collect(Collectors.toList());
     }
 
-
-
     @ApiOperation(value = "Retrieve specific user account", notes = "Retrieve specific user account")
-    @RequestMapping(value = "/user/accounts/{account-number}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/accounts/{account-number}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @WebMethod(operationName = "GetAccount")
-    @WebResult(name = "AccountEntity")
+    @WebResult(name = "Account")
     public AccountDto getAccount(
             @ApiParam(name = "user-id", value = "The user id", required = true)
             @RequestHeader(name = "user-id") String userId,
@@ -207,6 +155,112 @@ public class VirtualWalletController {
                         transactionEntity -> UUID.fromString(transactionEntity.getTransactionId())
                 ).collect(Collectors.toList()))
                 .build();
+    }
+
+    @ApiOperation(value = "Retrieve transactions for a specific account", notes = "Retrieve transactions for a specific account")
+    @RequestMapping(value = "/transactions/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @WebMethod(operationName = "GetTransactions")
+    @WebResult(name = "Transaction")
+    public List<TransactionDto> getTransactions(
+            @ApiParam(name = "user-id", value = "The user id", required = true)
+            @RequestHeader(name = "user-id") String userId,
+            @ApiParam(name = "password", value = "The user password", required = true)
+            @RequestHeader(name = "password") String password,
+            @ApiParam(name = "account-number", value = "The account number", required = true)
+            @RequestHeader(name = "account-number") String accountNumber)
+            throws ForbiddenException, NotFoundException {
+
+        var customerOptional = customerRepository.findById(userId);
+        if (customerOptional.isEmpty()) {
+            throw new NotFoundException("Customer not Found");
+        }
+        var customer = customerOptional.get();
+        if (!customer.getPassword().equals(password)){
+            throw new ForbiddenException("Incorrect Password");
+        }
+
+        var accountOptional =  customer.getAccounts().stream().filter(accountEntity -> accountEntity.getAccountNumber().equals(accountNumber)).findFirst();
+        if (accountOptional.isEmpty()) {
+            throw new NotFoundException("Account not Found");
+        }
+
+        var transactionIds = accountOptional.get().getTransactions();
+
+        var transactionEntityIterator = transactionRepository.findAllById(transactionIds.stream().map(transactionEntity -> {
+            return transactionEntity.getTransactionId();
+        }).collect(Collectors.toList())).iterator();
+
+        List<TransactionDto> transactionDtos = new ArrayList<>();
+        while (transactionEntityIterator.hasNext()) {
+            TransactionEntity entity = transactionEntityIterator.next();
+            transactionDtos.add(TransactionDto.builder()
+                    .amount(entity.getAmount())
+                    .dateInitiation(entity.getDateInitiation().toLocalDate().toString())
+                    .dateSettlement(entity.getDateSettlement().toLocalDate().toString())
+                    .fromAccountNumber(entity.getFromAccountNumber())
+                    .fromAccountOpeningBalance(entity.getFromAccountOpeningBalance())
+                    .settled(entity.isSettled())
+                    .toAccountNumber(entity.getToAccountNumber())
+                    .toAccountOpeningBalance(entity.getToAccountOpeningBalance())
+                    .transactionId(UUID.fromString(entity.getTransactionId()))
+                    .build());
+        }
+
+        if (transactionDtos.isEmpty()) {
+            throw new NotFoundException("Transactions not Found");
+        }
+
+        return transactionDtos;
+    }
+
+
+    @ApiOperation(value = "Create a new Customer", notes = "Create a new Customer")
+    @RequestMapping(value = "/customer/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @WebMethod(operationName = "CreateCustomer")
+    @WebResult(name = "Customer")
+    @ResponseStatus(value = HttpStatus.CREATED)
+    @ResponseBody
+    public CustomerDto createUser(
+            @ApiParam(name = "new-customer", value = "Request to make new customer", required = true)
+            @RequestBody NewCustomerDto newCustomerDto)
+            throws BadRequestException {
+
+        if (!newCustomerDto.getPassword().equals(newCustomerDto.getConfirmedPassword())) {
+            throw new BadRequestException("Passwords do not match");
+        }
+
+        Random rand = new Random();
+        String userId = "5" + String.format("%07d", rand.nextInt(1000000));
+
+        Optional<CustomerEntity> customerOptional = customerRepository.findById(userId);
+        while (customerOptional.isPresent()) {
+            userId = "5" + String.format("%07d", rand.nextInt(1000000));
+            customerOptional = customerRepository.findById(userId);
+        }
+
+        CustomerDto customerDto = CustomerDto.builder()
+                .customerId(userId)
+                .firstName(newCustomerDto.getFirstName())
+                .surname(newCustomerDto.getSurname())
+                .email(newCustomerDto.getEmail())
+                .phoneNumber(newCustomerDto.getPhoneNumber())
+                .password(newCustomerDto.getPassword())
+                .accountDtos(new ArrayList<>())
+                .build();
+
+        CustomerEntity customerEntity = CustomerEntity.builder()
+                .customerId(userId)
+                .firstName(newCustomerDto.getFirstName())
+                .surname(newCustomerDto.getSurname())
+                .email(newCustomerDto.getEmail())
+                .phoneNumber(newCustomerDto.getPhoneNumber())
+                .password(newCustomerDto.getPassword())
+                .accounts(new ArrayList<>())
+                .build();
+
+        customerRepository.save(customerEntity);
+
+        return customerDto;
     }
 
 }

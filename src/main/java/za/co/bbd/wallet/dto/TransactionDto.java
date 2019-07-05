@@ -4,10 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,14 +11,15 @@ import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
         "transactionId",
-        "fromAccount",
-        "toAccount",
+        "fromAccountNumber",
+        "fromAccountOpeningBalance",
+        "toAccountNumber",
+        "toAccountOpeningBalance",
         "amount",
         "dateInitiation",
         "dateSettlement",
@@ -47,8 +44,7 @@ public class TransactionDto implements Serializable {
     @ApiModelProperty(name = "from-account-opening-balance",
             notes = "The account funds are coming from")
     @JsonProperty(value = "from-account-opening-balance")
-    @NotNull
-    private String fromAccountOpeningBalance;
+    private double fromAccountOpeningBalance;
 
     @ApiModelProperty(name = "to-account-number",
             notes = "The account funds are going to")
@@ -59,35 +55,32 @@ public class TransactionDto implements Serializable {
     @ApiModelProperty(name = "to-account-opening-balance",
             notes = "The account funds are going to")
     @JsonProperty(value = "to-account-opening-balance")
-    @NotNull
-    private String toAccountOpeningBalance;
+    private double toAccountOpeningBalance;
 
     @ApiModelProperty(name = "amount", example = "500.00",
             notes = "The transaction amount")
     @JsonProperty(value = "amount")
-    @NotNull
     private double amount;
 
     @ApiModelProperty(name = "date-initiation", example = "2019-05-30",
             notes = "The date on which the transaction was initiated")
     @JsonProperty(value = "date-initiation")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDate dateInitiation;
+//    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+//    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    private String dateInitiation;
 
     @ApiModelProperty(name = "date-settlement", example = "2019-05-31",
             notes = "The date on which the transaction was settled")
     @JsonProperty(value = "date-settlement")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDate dateSettlement;
+//    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+//    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    private String dateSettlement;
 
     @ApiModelProperty(name = "settled", example = "true",
             notes = "Whether or not the transaction has been settled")
     @JsonProperty(value = "settled")
-    @NotNull
     private boolean settled;
 
     public TransactionDto() {
@@ -95,13 +88,13 @@ public class TransactionDto implements Serializable {
     }
 
     public TransactionDto(
-            @NotNull String fromAccountNumber,
-            @NotNull String fromAccountOpeningBalance,
-            @NotNull String toAccountNumber,
-            @NotNull String toAccountOpeningBalance,
-            @NotNull double amount,
-            LocalDate dateInitiation,
-            LocalDate dateSettlement) {
+            String fromAccountNumber,
+            double fromAccountOpeningBalance,
+            String toAccountNumber,
+            double toAccountOpeningBalance,
+            double amount,
+            String dateInitiation,
+            String dateSettlement) {
         this.transactionId = UUID.randomUUID();
         this.fromAccountNumber = fromAccountNumber;
         this.fromAccountOpeningBalance = fromAccountOpeningBalance;

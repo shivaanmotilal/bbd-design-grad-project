@@ -21,11 +21,11 @@ public class TransactionEntity {
     @GeneratedValue
     private String transactionId;
 
-    private String fromAccountId;
-    private double fromOpeningBalance;
+    private String fromAccountNumber;
+    private double fromAccountOpeningBalance;
 
-    private String toAccountId;
-    private double toOpeningBalance;
+    private String toAccountNumber;
+    private double toAccountOpeningBalance;
 
     private double amount;
 
