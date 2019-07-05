@@ -8,15 +8,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import za.co.bbd.wallet.dto.AccountDto;
-import za.co.bbd.wallet.dto.CustomerDto;
-import za.co.bbd.wallet.dto.NewCustomerDto;
-import za.co.bbd.wallet.dto.TransactionDto;
+import za.co.bbd.wallet.dto.*;
 import za.co.bbd.wallet.entity.CustomerEntity;
 import za.co.bbd.wallet.entity.TransactionEntity;
 import za.co.bbd.wallet.exceptions.BadRequestException;
 import za.co.bbd.wallet.exceptions.ForbiddenException;
 import za.co.bbd.wallet.exceptions.NotFoundException;
+import za.co.bbd.wallet.exceptions.UnauthorizedException;
 import za.co.bbd.wallet.repository.AccountRepository;
 import za.co.bbd.wallet.repository.CustomerRepository;
 import za.co.bbd.wallet.repository.TransactionRepository;
@@ -24,6 +22,8 @@ import za.co.bbd.wallet.repository.TransactionRepository;
 import javax.jws.WebMethod;
 import javax.jws.WebResult;
 import javax.jws.WebService;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -213,7 +213,6 @@ public class VirtualWalletController {
         return transactionDtos;
     }
 
-
     @ApiOperation(value = "Create a new Customer", notes = "Create a new Customer")
     @RequestMapping(value = "/customer/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @WebMethod(operationName = "CreateCustomer")
@@ -263,4 +262,139 @@ public class VirtualWalletController {
         return customerDto;
     }
 
+    @ApiOperation(value = "Get payment authorization", notes = "Get authorization for a payment")
+    @RequestMapping(value = "/payment/authorization/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @WebMethod(operationName = "CreateAuthorization")
+    @WebResult(name = "Transaction")
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.CREATED)
+    public TransactionDto doAuthorization(
+            @ApiParam(name = "customer-id", value = "The customer id", required = true)
+            @RequestHeader(name = "customer-id") String customerId,
+            @ApiParam(name = "password", value = "The user password", required = true)
+            @RequestHeader(name = "password") String password,
+            @ApiParam(name = "authorization", value = "Request to authorize a payment", required = true)
+            @RequestBody AuthorizationDto authorizationDto)
+            throws NotFoundException, UnauthorizedException, ForbiddenException {
+
+
+        if (authorizationDto.getAmount() < 0) {
+            throw new ForbiddenException("Y U TAK MAH MUNNY");
+        }
+
+        var customerOptional = customerRepository.findById(customerId);
+        if (customerOptional.isEmpty()) {
+            throw new NotFoundException("Customer not found");
+        }
+        var customer = customerOptional.get();
+        if (!customer.getPassword().equals(password)){
+            throw new UnauthorizedException("Authorization failed due to incorrect password");
+        }
+
+        var fromAccountOptional =  customer.getAccounts().stream()
+                .filter(accountEntity -> accountEntity.getAccountNumber().equals(authorizationDto.getFromAccountNumber()))
+                .findFirst();
+        if (fromAccountOptional.isEmpty()) {
+            throw new NotFoundException("Customer account not found");
+        }
+        var fromAccount = fromAccountOptional.get();
+
+        if (fromAccount.getAvailableBalance() < authorizationDto.getAmount()) {
+            throw new UnauthorizedException("Authorization failed due to insufficient funds");
+        }
+
+        var toAccountOptional = accountRepository.findById(authorizationDto.getToAccountNumber());
+        if (toAccountOptional.isEmpty()) {
+            throw new NotFoundException("Beneficiary account not found");
+        }
+        var toAccount = toAccountOptional.get();
+
+        fromAccount.setAvailableBalance(fromAccount.getAvailableBalance()-authorizationDto.getAmount());
+        accountRepository.save(fromAccount);
+
+        toAccount.setBalance(toAccount.getBalance()+authorizationDto.getAmount());
+        accountRepository.save(toAccount);
+
+        var transactionId = UUID.randomUUID();
+
+        TransactionDto transactionDto = TransactionDto.builder()
+                .amount(authorizationDto.getAmount())
+                .dateInitiation(LocalDate.now().toString())
+                .dateSettlement(LocalDate.now().toString())
+                .fromAccountNumber(fromAccount.getAccountNumber())
+                .fromAccountOpeningBalance(fromAccount.getAvailableBalance())
+                .settled(false)
+                .toAccountNumber(toAccount.getAccountNumber())
+                .toAccountOpeningBalance(toAccount.getAvailableBalance())
+                .transactionId(transactionId)
+                .build();
+
+        TransactionEntity transactionEntity = TransactionEntity.builder()
+                .amount(authorizationDto.getAmount())
+                .dateInitiation(Date.valueOf(LocalDate.now()))
+                .dateSettlement(Date.valueOf(LocalDate.now()))
+                .fromAccountNumber(fromAccount.getAccountNumber())
+                .fromAccountOpeningBalance(fromAccount.getAvailableBalance())
+                .settled(false)
+                .toAccountNumber(toAccount.getAccountNumber())
+                .toAccountOpeningBalance(toAccount.getAvailableBalance())
+                .transactionId(transactionId.toString())
+                .build();
+
+        transactionRepository.save(transactionEntity);
+
+        return transactionDto;
+
+    }
+
+    @ApiOperation(value = "Settle", notes = "Settle payment")
+    @RequestMapping(value = "/payment/settlement/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @WebMethod(operationName = "SettleTransaction")
+    @WebResult(name = "Transaction")
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.CREATED)
+    public TransactionDto settleTransaction(
+            @ApiParam(name = "transaction-settlement", value = "The transaction id to be settled", required = true)
+            @RequestBody TransactionSettlementDto transactionSettlementDto)
+            throws NotFoundException, UnauthorizedException, ForbiddenException {
+
+        var transactionOptional = transactionRepository.findById(transactionSettlementDto.getTransactionId().toString());
+        if (transactionOptional.isEmpty()) {
+            throw new NotFoundException("Transaction not found");
+        }
+        var transaction = transactionOptional.get();
+
+        var fromAccountOptional = accountRepository.findById(transaction.getFromAccountNumber());
+        if (fromAccountOptional.isEmpty()) {
+            throw new NotFoundException("Payer account not found");
+        }
+        var fromAccount = fromAccountOptional.get();
+
+        var toAccountOptional = accountRepository.findById(transaction.getToAccountNumber());
+        if (toAccountOptional.isEmpty()) {
+            throw new NotFoundException("Beneficiary account not found");
+        }
+        var toAccount = toAccountOptional.get();
+
+        fromAccount.setBalance(fromAccount.getBalance()-transaction.getAmount());
+        toAccount.setAvailableBalance(toAccount.getAvailableBalance()-transaction.getAmount());
+        transaction.setSettled(true);
+
+        TransactionDto transactionDto = TransactionDto.builder()
+                .amount(transaction.getAmount())
+                .dateInitiation(transaction.getDateInitiation().toString())
+                .dateSettlement(transaction.getDateSettlement().toString())
+                .fromAccountNumber(transaction.getFromAccountNumber())
+                .fromAccountOpeningBalance(transaction.getFromAccountOpeningBalance())
+                .settled(transaction.isSettled())
+                .toAccountNumber(transaction.getToAccountNumber())
+                .toAccountOpeningBalance(transaction.getToAccountOpeningBalance())
+                .transactionId(UUID.fromString(transaction.getTransactionId()))
+                .build();
+
+        transactionRepository.save(transaction);
+
+        return transactionDto;
+
+    }
 }

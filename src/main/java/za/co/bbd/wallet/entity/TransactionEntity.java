@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.sql.Date;
 
@@ -18,7 +17,6 @@ import java.sql.Date;
 public class TransactionEntity {
 
     @Id
-    @GeneratedValue
     private String transactionId;
 
     private String fromAccountNumber;
