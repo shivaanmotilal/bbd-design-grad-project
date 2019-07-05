@@ -1,9 +1,11 @@
 package za.co.bbd.wallet.entity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import java.util.ArrayList;
@@ -17,7 +19,7 @@ import java.util.List;
 public class CustomerEntity {
 
     @Id
-    @GeneratedValue
+//    @GeneratedValue
     private String customerId;
 
     private String firstName;
