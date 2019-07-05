@@ -3,6 +3,8 @@ package za.co.bbd.wallet.api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -33,6 +35,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @SuppressWarnings("Duplicates")
 public class VirtualWalletController {
+    Logger LOGGER = LoggerFactory.getLogger(VirtualWalletController.class);
     private CustomerRepository customerRepository;
     private AccountRepository accountRepository;
     private TransactionRepository transactionRepository;
@@ -45,6 +48,8 @@ public class VirtualWalletController {
         this.customerRepository = customerRepository;
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
+        LOGGER.INFO("Starting up VirtualWalletController");
+
     }
 
     @ApiOperation(value = "Retrieve customer details", notes = "Retrieve customer details")
@@ -60,10 +65,12 @@ public class VirtualWalletController {
 
         var customerOptional = customerRepository.findById(customerId);
         if (customerOptional.isEmpty()) {
+            LOGGER.info("CUSTOMER (" + customerId +") NOT FOUND");
             throw new NotFoundException("Customer not Found");
         }
         var customer = customerOptional.get();
         if (!customer.getPassword().equals(password)){
+            LOGGER.info("INCORRECT PASSWORD FOR (" + customerId +")");
             throw new ForbiddenException("Incorrect Password");
         }
         return CustomerDto.builder()
@@ -100,10 +107,12 @@ public class VirtualWalletController {
 
         var customerOptional = customerRepository.findById(userId);
         if (customerOptional.isEmpty()) {
+            LOGGER.info("USER (" + userId +") NOT FOUND");
             throw new NotFoundException("Customer not Found");
         }
         var customer = customerOptional.get();
         if (!customer.getPassword().equals(password)){
+            LOGGER.info("INCORRECT PASSWORD FOR (" + userId +")");
             throw new ForbiddenException("Incorrect Password");
         }
         return customer.getAccounts().stream().map(account ->
@@ -134,15 +143,18 @@ public class VirtualWalletController {
 
         var customerOptional = customerRepository.findById(userId);
         if (customerOptional.isEmpty()) {
+            LOGGER.info("CUSTOMER (" + userId +") NOT FOUND");
             throw new NotFoundException("Customer not Found");
         }
         var customer = customerOptional.get();
         if (!customer.getPassword().equals(password)){
+            LOGGER.info("INCORRECT PASSWORD FOR (" + customerId +")");
             throw new ForbiddenException("Incorrect Password");
         }
 
         var accountOptional =  customer.getAccounts().stream().filter(accountEntity -> accountEntity.getAccountNumber().equals(accountNumber)).findFirst();
         if (accountOptional.isEmpty()) {
+            LOGGER.info("ACCOUNT (" + accountOptional +") NOT FOUND");
             throw new NotFoundException("Account not Found");
         }
         var account = accountOptional.get();
@@ -172,15 +184,18 @@ public class VirtualWalletController {
 
         var customerOptional = customerRepository.findById(userId);
         if (customerOptional.isEmpty()) {
+            LOGGER.info("USER (" + userId +") NOT FOUND");
             throw new NotFoundException("Customer not Found");
         }
         var customer = customerOptional.get();
         if (!customer.getPassword().equals(password)){
+            LOGGER.info("INCORRECT PASSWORD FOR (" + userId +")");
             throw new ForbiddenException("Incorrect Password");
         }
 
         var accountOptional =  customer.getAccounts().stream().filter(accountEntity -> accountEntity.getAccountNumber().equals(accountNumber)).findFirst();
         if (accountOptional.isEmpty()) {
+            LOGGER.info("CUSTOMER (" + accountOptional +") NOT FOUND");
             throw new NotFoundException("Account not Found");
         }
 
@@ -207,6 +222,7 @@ public class VirtualWalletController {
         }
 
         if (transactionDtos.isEmpty()) {
+            LOGGER.info("NO TRANSACTIONS FOUND");
             throw new NotFoundException("Transactions not Found");
         }
 
@@ -225,6 +241,7 @@ public class VirtualWalletController {
             throws BadRequestException {
 
         if (!newCustomerDto.getPassword().equals(newCustomerDto.getConfirmedPassword())) {
+            LOGGER.info("PASSWORDS DO NOT MATCH");
             throw new BadRequestException("Passwords do not match");
         }
 
@@ -284,10 +301,12 @@ public class VirtualWalletController {
 
         var customerOptional = customerRepository.findById(customerId);
         if (customerOptional.isEmpty()) {
+            LOGGER.info("CUSTOMER (" + customerId +") NOT FOUND");
             throw new NotFoundException("Customer not found");
         }
         var customer = customerOptional.get();
         if (!customer.getPassword().equals(password)){
+            LOGGER.info("AUTHORIZATION FAILED. INCORRECT PASSWORD");
             throw new UnauthorizedException("Authorization failed due to incorrect password");
         }
 
