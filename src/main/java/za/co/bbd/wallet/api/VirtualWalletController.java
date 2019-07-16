@@ -48,7 +48,7 @@ public class VirtualWalletController {
         this.customerRepository = customerRepository;
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
-        LOGGER.INFO("Starting up VirtualWalletController");
+        LOGGER.info("Starting up VirtualWalletController");
 
     }
 
@@ -148,7 +148,7 @@ public class VirtualWalletController {
         }
         var customer = customerOptional.get();
         if (!customer.getPassword().equals(password)){
-            LOGGER.info("INCORRECT PASSWORD FOR (" + customerId +")");
+            LOGGER.info("INCORRECT PASSWORD FOR (" + customer.toString() +")");
             throw new ForbiddenException("Incorrect Password");
         }
 
