@@ -13,17 +13,22 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @Builder
-@Entity(name = "Account")
+@Entity
+@Table(name="Account")
 public class AccountEntity {
 
     @Id
+    @Column(name="accountNumber")
     private String accountNumber;
 
-    private double balance;
+    @Column(name="accountBalance")
+    private double accountBalance;
 
+    @Column(name="availableBalance")
     private double availableBalance;
 
-    private boolean closed;
+    @Column(name="closedAccount")
+    private boolean closedAccount;
 
     @ManyToMany
     private List<TransactionEntity> transactions = new ArrayList<>();
