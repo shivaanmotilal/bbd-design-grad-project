@@ -15,9 +15,9 @@ spring:
       enabled: true
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/test_wallet
+    url: jdbc:mysql://localhost:3306/test_wallet?sslMode=DISABLED
     username: root
-    password: password
+    password: root
   jpa:
     hibernate.ddl-auto: update
     generate-ddl: true
