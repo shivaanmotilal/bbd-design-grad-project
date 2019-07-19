@@ -28,7 +28,7 @@ public class AccountEntity {
     private double availableBalance;
 
     @Column(name="closedAccount")
-    private boolean closedAccount;
+    private int closedAccount;
 
     @ManyToMany
     private List<TransactionEntity> transactions = new ArrayList<>();

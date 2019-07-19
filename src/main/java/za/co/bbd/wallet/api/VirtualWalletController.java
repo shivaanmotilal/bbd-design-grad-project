@@ -85,7 +85,7 @@ public class VirtualWalletController {
                             .accountNumber(account.getAccountNumber())
                             .balance(account.getAccountBalance())
                             .availableBalance(account.getAvailableBalance())
-                            .closed(account.isClosedAccount())
+                            .closed(account.getClosedAccount())
                             .transactions(account.getTransactions().stream().map(
                                 transactionEntity -> UUID.fromString(transactionEntity.getTransactionId())
                             ).collect(Collectors.toList()))
@@ -120,7 +120,7 @@ public class VirtualWalletController {
                                 .accountNumber(account.getAccountNumber())
                                 .balance(account.getAccountBalance())
                                 .availableBalance(account.getAvailableBalance())
-                                .closed(account.isClosedAccount())
+                                .closed(account.getClosedAccount())
                                 .transactions(account.getTransactions().stream().map(
                                         transactionEntity -> UUID.fromString(transactionEntity.getTransactionId())
                                 ).collect(Collectors.toList()))
@@ -162,7 +162,7 @@ public class VirtualWalletController {
                 .accountNumber(account.getAccountNumber())
                 .balance(account.getAccountBalance())
                 .availableBalance(account.getAvailableBalance())
-                .closed(account.isClosedAccount())
+                .closed(account.getClosedAccount())
                 .transactions(account.getTransactions().stream().map(
                         transactionEntity -> UUID.fromString(transactionEntity.getTransactionId())
                 ).collect(Collectors.toList()))
@@ -214,7 +214,7 @@ public class VirtualWalletController {
                     .dateSettlement(entity.getDateSettlement().toLocalDate().toString())
                     .fromAccountNumber(entity.getFromAccountNumber())
                     .fromAccountOpeningBalance(entity.getFromAccountOpeningBalance())
-                    .settled(entity.isSettled())
+                    .settled(entity.getSettled())
                     .toAccountNumber(entity.getToAccountNumber())
                     .toAccountOpeningBalance(entity.getToAccountOpeningBalance())
                     .transactionId(UUID.fromString(entity.getTransactionId()))
@@ -342,7 +342,7 @@ public class VirtualWalletController {
                 .dateSettlement(LocalDate.now().toString())
                 .fromAccountNumber(fromAccount.getAccountNumber())
                 .fromAccountOpeningBalance(fromAccount.getAvailableBalance())
-                .settled(false)
+                .settled(0)
                 .toAccountNumber(toAccount.getAccountNumber())
                 .toAccountOpeningBalance(toAccount.getAvailableBalance())
                 .transactionId(transactionId)
@@ -354,7 +354,7 @@ public class VirtualWalletController {
                 .dateSettlement(Date.valueOf(LocalDate.now()))
                 .fromAccountNumber(fromAccount.getAccountNumber())
                 .fromAccountOpeningBalance(fromAccount.getAvailableBalance())
-                .settled(false)
+                .settled(0)
                 .toAccountNumber(toAccount.getAccountNumber())
                 .toAccountOpeningBalance(toAccount.getAvailableBalance())
                 .transactionId(transactionId.toString())
@@ -397,7 +397,7 @@ public class VirtualWalletController {
 
         fromAccount.setAccountBalance(fromAccount.getAccountBalance()-transaction.getAmount());
         toAccount.setAvailableBalance(toAccount.getAvailableBalance()-transaction.getAmount());
-        transaction.setSettled(true);
+        transaction.setSettled(0);
 
         TransactionDto transactionDto = TransactionDto.builder()
                 .amount(transaction.getAmount())
@@ -405,7 +405,7 @@ public class VirtualWalletController {
                 .dateSettlement(transaction.getDateSettlement().toString())
                 .fromAccountNumber(transaction.getFromAccountNumber())
                 .fromAccountOpeningBalance(transaction.getFromAccountOpeningBalance())
-                .settled(transaction.isSettled())
+                .settled(transaction.getSettled())
                 .toAccountNumber(transaction.getToAccountNumber())
                 .toAccountOpeningBalance(transaction.getToAccountOpeningBalance())
                 .transactionId(UUID.fromString(transaction.getTransactionId()))

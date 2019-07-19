@@ -44,5 +44,5 @@ public class TransactionEntity {
     private Date dateSettlement;
 
     @Column(name="settled")
-    private boolean settled;
+    private int settled;
 }
