@@ -5,30 +5,44 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Builder
-@Entity(name = "Transaction")
+@Entity
+@Table(name="Transaction")
 public class TransactionEntity {
 
     @Id
+    @Column(name="transactionId")
     private String transactionId;
 
+    @Column(name="fromAccountNumber")
     private String fromAccountNumber;
+
+    @Column(name="fromAccountOpeningBalance")
     private double fromAccountOpeningBalance;
 
+    @Column(name="toAccountNumber")
     private String toAccountNumber;
+
+    @Column(name="toAccountOpeningBalance")
     private double toAccountOpeningBalance;
 
+    @Column(name="amount")
     private double amount;
 
+    @Column(name="dateInitiation")
     private Date dateInitiation;
+
+    @Column(name="dateSettlement")
     private Date dateSettlement;
 
-    private boolean settled;
+    @Column(name="settled")
+    private int settled;
 }

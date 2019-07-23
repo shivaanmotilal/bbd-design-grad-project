@@ -53,7 +53,7 @@ public class AccountDto implements Serializable {
             notes = "Whether or not the account has been closed")
     @JsonProperty(value = "closed")
     @NotNull
-    private boolean closed;
+    private int closed;
 
     @ApiModelProperty(name = "transactions",
             notes = "A list of transactionEntities associated with the account")

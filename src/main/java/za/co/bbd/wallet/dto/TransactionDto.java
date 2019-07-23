@@ -81,7 +81,7 @@ public class TransactionDto implements Serializable {
     @ApiModelProperty(name = "settled", example = "true",
             notes = "Whether or not the transaction has been settled")
     @JsonProperty(value = "settled")
-    private boolean settled;
+    private int settled;
 
     public TransactionDto() {
         this.transactionId = UUID.randomUUID();
@@ -103,6 +103,6 @@ public class TransactionDto implements Serializable {
         this.amount = amount;
         this.dateInitiation = dateInitiation;
         this.dateSettlement = dateSettlement;
-        this.settled = false;
+        this.settled = 0;
     }
 }
