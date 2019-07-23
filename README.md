@@ -19,7 +19,7 @@ You will need to install a [Java 11 SDK](https://adoptopenjdk.net/) and optional
 
 ### Running on IntelliJ
 Create an Application Run Configuration.
-Run:
+Then Run:
 ```shell
 mvn clean install
 ```
