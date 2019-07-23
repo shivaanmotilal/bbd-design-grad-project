@@ -26,7 +26,7 @@ public class AccountModel {
     private double availableBalance;
 
     @NotNull
-    private boolean closed;
+    private int closed;
 
     private List<UUID> transactions;
 

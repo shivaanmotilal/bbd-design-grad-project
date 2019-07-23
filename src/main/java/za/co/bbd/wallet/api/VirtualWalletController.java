@@ -11,21 +11,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import za.co.bbd.wallet.dto.*;
-import za.co.bbd.wallet.entity.CustomerEntity;
 import za.co.bbd.wallet.entity.TransactionEntity;
 import za.co.bbd.wallet.exceptions.BadRequestException;
 import za.co.bbd.wallet.exceptions.ForbiddenException;
 import za.co.bbd.wallet.exceptions.NotFoundException;
 import za.co.bbd.wallet.exceptions.UnauthorizedException;
-import za.co.bbd.wallet.repository.AccountRepository;
-import za.co.bbd.wallet.repository.CustomerRepository;
-import za.co.bbd.wallet.repository.TransactionRepository;
+import za.co.bbd.wallet.services.AccountService;
+import za.co.bbd.wallet.services.AuthorizationService;
+import za.co.bbd.wallet.services.CustomerService;
+import za.co.bbd.wallet.services.TransactionService;
 
 import javax.jws.WebMethod;
 import javax.jws.WebResult;
 import javax.jws.WebService;
-import java.sql.Date;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,18 +34,21 @@ import java.util.stream.Collectors;
 @SuppressWarnings("Duplicates")
 public class VirtualWalletController {
     Logger LOGGER = LoggerFactory.getLogger(VirtualWalletController.class);
-    private CustomerRepository customerRepository;
-    private AccountRepository accountRepository;
-    private TransactionRepository transactionRepository;
+    private CustomerService customerService;
+    private AccountService accountService;
+    private TransactionService transactionService;
+    private AuthorizationService authorizationService;
 
     @Autowired
     public VirtualWalletController(
-            @Qualifier("wallet.AccountRepository") AccountRepository accountRepository,
-            @Qualifier("wallet.CustomerRepository") CustomerRepository customerRepository,
-            @Qualifier("wallet.TransactionRepository") TransactionRepository transactionRepository) {
-        this.customerRepository = customerRepository;
-        this.accountRepository = accountRepository;
-        this.transactionRepository = transactionRepository;
+            @Qualifier("wallet.CustomerService") CustomerService customerService,
+            @Qualifier("wallet.AccountService") AccountService accountService,
+            @Qualifier("wallet.TransactionService") TransactionService transactionService,
+            @Qualifier("wallet.AuthorizationService") AuthorizationService authorizationService) {
+        this.customerService= customerService;
+        this.accountService=accountService;
+        this.transactionService=transactionService;
+        this.authorizationService= authorizationService;
         LOGGER.info("Starting up VirtualWalletController");
 
     }
@@ -62,17 +63,7 @@ public class VirtualWalletController {
             @ApiParam(name = "password", value = "The customer password", required = true)
             @RequestHeader(name = "password") String password)
             throws ForbiddenException, NotFoundException {
-
-        var customerOptional = customerRepository.findById(customerId);
-        if (customerOptional.isEmpty()) {
-            LOGGER.info("CUSTOMER (" + customerId +") NOT FOUND");
-            throw new NotFoundException("Customer not Found");
-        }
-        var customer = customerOptional.get();
-        if (!customer.getPassword().equals(password)){
-            LOGGER.info("INCORRECT PASSWORD FOR (" + customerId +")");
-            throw new ForbiddenException("Incorrect Password");
-        }
+        var customer= customerService.findCustomer(customerId,password);
         return CustomerDto.builder()
                 .customerId(customer.getCustomerId())
                 .password(customer.getPassword())
@@ -104,17 +95,7 @@ public class VirtualWalletController {
             @ApiParam(name = "password", value = "The user password", required = true)
             @RequestHeader(name = "password") String password)
             throws ForbiddenException, NotFoundException {
-
-        var customerOptional = customerRepository.findById(userId);
-        if (customerOptional.isEmpty()) {
-            LOGGER.info("USER (" + userId +") NOT FOUND");
-            throw new NotFoundException("Customer not Found");
-        }
-        var customer = customerOptional.get();
-        if (!customer.getPassword().equals(password)){
-            LOGGER.info("INCORRECT PASSWORD FOR (" + userId +")");
-            throw new ForbiddenException("Incorrect Password");
-        }
+        var customer= customerService.findCustomer(userId,password);
         return customer.getAccounts().stream().map(account ->
                         AccountDto.builder()
                                 .accountNumber(account.getAccountNumber())
@@ -141,23 +122,9 @@ public class VirtualWalletController {
             @PathVariable(value = "account-number") String accountNumber)
             throws ForbiddenException, NotFoundException {
 
-        var customerOptional = customerRepository.findById(userId);
-        if (customerOptional.isEmpty()) {
-            LOGGER.info("CUSTOMER (" + userId +") NOT FOUND");
-            throw new NotFoundException("Customer not Found");
-        }
-        var customer = customerOptional.get();
-        if (!customer.getPassword().equals(password)){
-            LOGGER.info("INCORRECT PASSWORD FOR (" + customer.toString() +")");
-            throw new ForbiddenException("Incorrect Password");
-        }
+        var customer= customerService.findCustomer(userId,password);
+        var account= accountService.findAccount(customer, accountNumber);
 
-        var accountOptional =  customer.getAccounts().stream().filter(accountEntity -> accountEntity.getAccountNumber().equals(accountNumber)).findFirst();
-        if (accountOptional.isEmpty()) {
-            LOGGER.info("ACCOUNT (" + accountOptional +") NOT FOUND");
-            throw new NotFoundException("Account not Found");
-        }
-        var account = accountOptional.get();
         return AccountDto.builder()
                 .accountNumber(account.getAccountNumber())
                 .balance(account.getAccountBalance())
@@ -181,29 +148,8 @@ public class VirtualWalletController {
             @ApiParam(name = "account-number", value = "The account number", required = true)
             @RequestHeader(name = "account-number") String accountNumber)
             throws ForbiddenException, NotFoundException {
-
-        var customerOptional = customerRepository.findById(userId);
-        if (customerOptional.isEmpty()) {
-            LOGGER.info("USER (" + userId +") NOT FOUND");
-            throw new NotFoundException("Customer not Found");
-        }
-        var customer = customerOptional.get();
-        if (!customer.getPassword().equals(password)){
-            LOGGER.info("INCORRECT PASSWORD FOR (" + userId +")");
-            throw new ForbiddenException("Incorrect Password");
-        }
-
-        var accountOptional =  customer.getAccounts().stream().filter(accountEntity -> accountEntity.getAccountNumber().equals(accountNumber)).findFirst();
-        if (accountOptional.isEmpty()) {
-            LOGGER.info("CUSTOMER (" + accountOptional +") NOT FOUND");
-            throw new NotFoundException("Account not Found");
-        }
-
-        var transactionIds = accountOptional.get().getTransactions();
-
-        var transactionEntityIterator = transactionRepository.findAllById(transactionIds.stream().map(transactionEntity -> {
-            return transactionEntity.getTransactionId();
-        }).collect(Collectors.toList())).iterator();
+        var customer= customerService.findCustomer(userId,password);
+        var transactionEntityIterator= transactionService.getUserTransactions(customer, accountNumber);
 
         List<TransactionDto> transactionDtos = new ArrayList<>();
         while (transactionEntityIterator.hasNext()) {
@@ -240,42 +186,9 @@ public class VirtualWalletController {
             @RequestBody NewCustomerDto newCustomerDto)
             throws BadRequestException {
 
-        if (!newCustomerDto.getPassword().equals(newCustomerDto.getConfirmedPassword())) {
-            LOGGER.info("PASSWORDS DO NOT MATCH");
-            throw new BadRequestException("Passwords do not match");
-        }
-
-        Random rand = new Random();
-        String userId = "5" + String.format("%07d", rand.nextInt(1000000));
-
-        Optional<CustomerEntity> customerOptional = customerRepository.findById(userId);
-        while (customerOptional.isPresent()) {
-            userId = "5" + String.format("%07d", rand.nextInt(1000000));
-            customerOptional = customerRepository.findById(userId);
-        }
-
-        CustomerDto customerDto = CustomerDto.builder()
-                .customerId(userId)
-                .firstName(newCustomerDto.getFirstName())
-                .surname(newCustomerDto.getSurname())
-                .email(newCustomerDto.getEmail())
-                .phoneNumber(newCustomerDto.getPhoneNumber())
-                .password(newCustomerDto.getPassword())
-                .accountDtos(new ArrayList<>())
-                .build();
-
-        CustomerEntity customerEntity = CustomerEntity.builder()
-                .customerId(userId)
-                .firstName(newCustomerDto.getFirstName())
-                .surname(newCustomerDto.getSurname())
-                .email(newCustomerDto.getEmail())
-                .phoneNumber(newCustomerDto.getPhoneNumber())
-                .password(newCustomerDto.getPassword())
-                .accounts(new ArrayList<>())
-                .build();
-
-        customerRepository.save(customerEntity);
-
+        customerService.checkPassword(newCustomerDto);
+        var userId= customerService.createCustomerUserId();
+        var customerDto= customerService.saveCustomer(newCustomerDto, userId);
         return customerDto;
     }
 
@@ -294,73 +207,13 @@ public class VirtualWalletController {
             @RequestBody AuthorizationDto authorizationDto)
             throws NotFoundException, UnauthorizedException, ForbiddenException {
 
-
-        if (authorizationDto.getAmount() < 0) {
-            throw new ForbiddenException("Y U TAK MAH MUNNY");
-        }
-
-        var customerOptional = customerRepository.findById(customerId);
-        if (customerOptional.isEmpty()) {
-            LOGGER.info("CUSTOMER (" + customerId +") NOT FOUND");
-            throw new NotFoundException("Customer not found");
-        }
-        var customer = customerOptional.get();
-        if (!customer.getPassword().equals(password)){
-            LOGGER.info("AUTHORIZATION FAILED. INCORRECT PASSWORD");
-            throw new UnauthorizedException("Authorization failed due to incorrect password");
-        }
-
-        var fromAccountOptional =  customer.getAccounts().stream()
-                .filter(accountEntity -> accountEntity.getAccountNumber().equals(authorizationDto.getFromAccountNumber()))
-                .findFirst();
-        if (fromAccountOptional.isEmpty()) {
-            throw new NotFoundException("Customer account not found");
-        }
-        var fromAccount = fromAccountOptional.get();
-
-        if (fromAccount.getAvailableBalance() < authorizationDto.getAmount()) {
-            throw new UnauthorizedException("Authorization failed due to insufficient funds");
-        }
-
-        var toAccountOptional = accountRepository.findById(authorizationDto.getToAccountNumber());
-        if (toAccountOptional.isEmpty()) {
-            throw new NotFoundException("Beneficiary account not found");
-        }
-        var toAccount = toAccountOptional.get();
-
-        fromAccount.setAvailableBalance(fromAccount.getAvailableBalance()-authorizationDto.getAmount());
-        accountRepository.save(fromAccount);
-
-        toAccount.setAccountBalance(toAccount.getAccountBalance()+authorizationDto.getAmount());
-        accountRepository.save(toAccount);
-
-        var transactionId = UUID.randomUUID();
-
-        TransactionDto transactionDto = TransactionDto.builder()
-                .amount(authorizationDto.getAmount())
-                .dateInitiation(LocalDate.now().toString())
-                .dateSettlement(LocalDate.now().toString())
-                .fromAccountNumber(fromAccount.getAccountNumber())
-                .fromAccountOpeningBalance(fromAccount.getAvailableBalance())
-                .settled(0)
-                .toAccountNumber(toAccount.getAccountNumber())
-                .toAccountOpeningBalance(toAccount.getAvailableBalance())
-                .transactionId(transactionId)
-                .build();
-
-        TransactionEntity transactionEntity = TransactionEntity.builder()
-                .amount(authorizationDto.getAmount())
-                .dateInitiation(Date.valueOf(LocalDate.now()))
-                .dateSettlement(Date.valueOf(LocalDate.now()))
-                .fromAccountNumber(fromAccount.getAccountNumber())
-                .fromAccountOpeningBalance(fromAccount.getAvailableBalance())
-                .settled(0)
-                .toAccountNumber(toAccount.getAccountNumber())
-                .toAccountOpeningBalance(toAccount.getAvailableBalance())
-                .transactionId(transactionId.toString())
-                .build();
-
-        transactionRepository.save(transactionEntity);
+        var customer= authorizationService.checkAuthorisation(customerId,password);
+        var fromAccount= accountService.findFromAccount(customer);
+        accountService.checkFunds(fromAccount);
+        var toAccount= accountService.findBeneficiaryAccount();
+        accountService.updateAvailableCustomerBalance(fromAccount);
+        accountService.updateBeneficiaryAccountBalance(toAccount);
+        var transactionDto= transactionService.saveTransaction(fromAccount, toAccount);
 
         return transactionDto;
 
@@ -377,41 +230,10 @@ public class VirtualWalletController {
             @RequestBody TransactionSettlementDto transactionSettlementDto)
             throws NotFoundException, UnauthorizedException, ForbiddenException {
 
-        var transactionOptional = transactionRepository.findById(transactionSettlementDto.getTransactionId().toString());
-        if (transactionOptional.isEmpty()) {
-            throw new NotFoundException("Transaction not found");
-        }
-        var transaction = transactionOptional.get();
-
-        var fromAccountOptional = accountRepository.findById(transaction.getFromAccountNumber());
-        if (fromAccountOptional.isEmpty()) {
-            throw new NotFoundException("Payer account not found");
-        }
-        var fromAccount = fromAccountOptional.get();
-
-        var toAccountOptional = accountRepository.findById(transaction.getToAccountNumber());
-        if (toAccountOptional.isEmpty()) {
-            throw new NotFoundException("Beneficiary account not found");
-        }
-        var toAccount = toAccountOptional.get();
-
-        fromAccount.setAccountBalance(fromAccount.getAccountBalance()-transaction.getAmount());
-        toAccount.setAvailableBalance(toAccount.getAvailableBalance()-transaction.getAmount());
-        transaction.setSettled(0);
-
-        TransactionDto transactionDto = TransactionDto.builder()
-                .amount(transaction.getAmount())
-                .dateInitiation(transaction.getDateInitiation().toString())
-                .dateSettlement(transaction.getDateSettlement().toString())
-                .fromAccountNumber(transaction.getFromAccountNumber())
-                .fromAccountOpeningBalance(transaction.getFromAccountOpeningBalance())
-                .settled(transaction.getSettled())
-                .toAccountNumber(transaction.getToAccountNumber())
-                .toAccountOpeningBalance(transaction.getToAccountOpeningBalance())
-                .transactionId(UUID.fromString(transaction.getTransactionId()))
-                .build();
-
-        transactionRepository.save(transaction);
+        var transaction= transactionService.findTransaction(transactionSettlementDto);
+        var fromAccount = accountService.findPayerAccount(transaction);
+        var toAccount = accountService.findReceiverAccount(transaction);
+        var transactionDto= transactionService.settleTransaction(fromAccount, toAccount, transaction);
 
         return transactionDto;
 

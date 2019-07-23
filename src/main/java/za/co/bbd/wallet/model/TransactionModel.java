@@ -36,7 +36,7 @@ public class TransactionModel {
     private LocalDate dateSettlement;
 
     @NotNull
-    private boolean settled;
+    private int settled;
 
     public TransactionModel() {
         this.transactionId = UUID.randomUUID();
@@ -58,6 +58,6 @@ public class TransactionModel {
         this.amount = amount;
         this.dateInitiation = dateInitiation;
         this.dateSettlement = dateSettlement;
-        this.settled = false;
+        this.settled = 0;
     }
 }
