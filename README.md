@@ -17,6 +17,14 @@ git clone git@github.com:Zentren/bbd-design-grad-project.git
 You will need to install a [Java 11 SDK](https://adoptopenjdk.net/) and optionally
 [Maven](https://maven.apache.org/download.cgi).
 
+### Running on IntelliJ
+Create an Application Run Configuration.
+Run:
+```shell
+mvn clean install
+```
+to autogenerate the Mapping classes using MapStruct. Thereafter run the project.
+
 ### Building
 
 To build the project, you will need to run the following command in the project
@@ -34,6 +42,10 @@ found in the project root after building:
 ```shell
 java -jar wallet-0.0.1-SNAPSHOT.jar
 ```
+### MySQL Console Configs
+
+Use Username and password as "root".
+SQL script in startUpScripts folder
 
 ### H2 Console Configs
 
