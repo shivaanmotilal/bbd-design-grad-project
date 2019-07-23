@@ -141,6 +141,7 @@ public class VirtualWalletController {
             @PathVariable(value = "account-number") String accountNumber)
             throws ForbiddenException, NotFoundException {
 
+        //customer CustomerService.validate(userId, password)
         var customerOptional = customerRepository.findById(userId);
         if (customerOptional.isEmpty()) {
             LOGGER.info("CUSTOMER (" + userId +") NOT FOUND");
@@ -152,6 +153,7 @@ public class VirtualWalletController {
             throw new ForbiddenException("Incorrect Password");
         }
 
+        //AccountDTO AccountService.findAccount(userId, customer)
         var accountOptional =  customer.getAccounts().stream().filter(accountEntity -> accountEntity.getAccountNumber().equals(accountNumber)).findFirst();
         if (accountOptional.isEmpty()) {
             LOGGER.info("ACCOUNT (" + accountOptional +") NOT FOUND");
