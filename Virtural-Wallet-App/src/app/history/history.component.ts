@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Payment } from '../models/payment';
 
 @Component({
   selector: 'app-history',
@@ -7,9 +8,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HistoryComponent implements OnInit {
 
+  payments: Payment[];
+
   constructor() { }
 
   ngOnInit() {
+    this.payments = [new Payment("1234", "15478925",5478, "45794544", 4780,254, "15-Jan-2019", "23-Jul-2019", 1), new Payment("1234", "15478925",5478, "45794544", 4780,254, "15-Jan-2019", "23-Jul-2019", 0)];
   }
 
 }
