@@ -6,21 +6,24 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 })
 export class BackEndService {
 
-    url: string = 'localhost:8080/wallet/api/'; 
+    url: string = 'localhost:8080'; 
     
     constructor(private http: HttpClient) { // AngularHttp
 
     }
 
-    get(path: string) {
-        const completePath = this.url + path;
-        return this.http.get();
+    get(path: string, otherUrl: boolean = false) {
+        if (!otherUrl)
+            return this.http.get(this.url + path);
+        else
+        {
+            return this.http.get(path);
+        } 
     }
     
     post(path: string, data: any) {
-        const completePath = this.url + path;
-        return this.http.post(completePath, JSON.stringify(data), {
-            headers: new Headers({'Content-Type': 'application/json'})
+        return this.http.post(this.url + path, JSON.stringify(data), {
+            headers: new HttpHeaders({'Content-Type': 'application/json'})
         });
     }
 }
