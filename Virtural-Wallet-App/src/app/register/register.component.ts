@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { LoginService } from '../login.service';
+import { LoginService } from '../services/login.service';
+import { Customer } from '../models/customer';
 import { Observable } from 'rxjs';
 import { NgForm, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 
@@ -11,23 +12,23 @@ import { NgForm, FormBuilder, FormGroup, Validators, FormControl } from '@angula
 export class RegisterComponent implements OnInit {
 
   data = false;
-  UserForm: any;
+  customerForm: any;
   massage: string;
-  constructor(private loginService: LoginService) { }
+  constructor(private formbuilder: FormBuilder, private loginService: LoginService) { }
 
   ngOnInit() {
-    /*this.UserForm = this.formbulider.group({
-      UserName: ['', [Validators.required]],
-      LoginName: ['', [Validators.required]],
-      Password: ['', [Validators.required]],
+    this.customerForm = this.formbuilder.group({
       Email: ['', [Validators.required]],
-      ContactNo: ['', [Validators.required]],
-      Address: ['', [Validators.required]],
-    });*/
+      Name: ['', [Validators.required]],
+      Surname: ['', [Validators.required]],
+      Contact: ['', [Validators.required]],
+      Password: ['', [Validators.required]],
+      PasswordConfirm: ['', [Validators.required]],
+    });
   }
   
- /* onFormSubmit() {
-    const user = this.UserForm.value;
+  onFormSubmit() {
+    const user = this.customerForm.value;
     this.CreateCustomer(user);
   }
 
@@ -36,8 +37,7 @@ export class RegisterComponent implements OnInit {
       () => {
         this.data = true;
         this.massage = 'Customer Created Successfully';
-        this.UserForm.reset();
+        this.customerForm.reset();
       });
-  }*/
-
+  }
 }
