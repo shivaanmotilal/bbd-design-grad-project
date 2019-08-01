@@ -8,7 +8,7 @@ import { BackEndService } from '../services/back-end.service';
   providedIn: 'root'
 })
 export class LoginService {
-  path: string = 'TODO: only path that starts with /';
+  path: string = 'login/';
 
   constructor(private backendService: BackEndService) {
   }
