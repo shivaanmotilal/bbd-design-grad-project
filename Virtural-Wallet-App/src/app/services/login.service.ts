@@ -2,30 +2,22 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { from, Observable } from 'rxjs';
 import { Customer } from '../models/customer';
+import { BackEndService } from './back-end.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginService {
-  Url: string;
-  token: string;
-  header: any;
+  path: string;
 
-  constructor(private http: HttpClient) {
-    this.Url = '';
-
-    const headerSettings: {[name: string]: string | string[]; } = {};
-    this.header = new HttpHeaders(headerSettings);
+  constructor(private backendService: BackEndService) {
   }
 
   Login(model: any) {
-    debugger;
-    var a = this.Url+'';
-    return this.http.post<any>(a, model, {headers: this.header});
+    return this.backendService.post(this.path, model);
   }
 
   CreateUser(customer: Customer) {
-    const httpOptions = {headers: new HttpHeaders({ 'Content-Type': 'application/json'})};
-    return this.http.post<Customer[]>(this.Url+'', customer, httpOptions);
+    return this.backendService.post(this.path, customer);
   }
 }
