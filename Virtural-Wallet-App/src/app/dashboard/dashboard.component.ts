@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Payment } from '../models/payment';
 import { Account } from '../models/account';
+import { AccountService } from '../services/account.service';
+import { PaymentService } from '../services/payment.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -9,18 +11,50 @@ import { Account } from '../models/account';
 })
 export class DashboardComponent implements OnInit {
 
-  payments: Payment[];
-  highestTransaction: number;
-  lowestTransaction: number;
-  accounts: Account[];
+  payments: any = [];
+  highestTransaction: number = 0;
+  lowestTransaction: number = 0;
+  accounts: any = [];
 
-  constructor() { }
+  constructor(public accountService: AccountService, public paymentService: PaymentService) { }
 
   ngOnInit() {
-    this.payments = [new Payment("1234", "15478925",5478, "45794544", 4780,254, "15-Jan-2019", "23-Jul-2019", 1), new Payment("1234", "15478925",5478, "45794544", 4780,254, "15-Jan-2019", "23-Jul-2019", 0)];
-    this.accounts = [new Account("15478925", 1258.65, 1000.00, 1, this.payments), new Account("153878925", 2458.65, 2000.00, 0, null)];
-    this.highestTransaction = 1000;
-    this.lowestTransaction = 50;
+    this.getAccounts();
+    this.getPayments();
+    this.getHighestTransaction();
+    this.getLowestTransaction();
+  }
+
+  getAccounts() {
+    this.accounts = [];
+    this.accountService.getAccounts().subscribe((data: {}) => {
+      this.accounts = data;
+    });
+  }
+
+  getPayments() {
+    this.payments = [];
+    this.paymentService.getPayments().subscribe((data: {}) => {
+      this.payments = data;
+    });
+  }
+
+  getHighestTransaction() {
+    this.highestTransaction = this.payments[0].amount;
+    for(var i = 1; i < this.payments.length; i++) {
+      if(this.payments[i].amount > this.highestTransaction) {
+        this.highestTransaction = this.payments[i].amount
+      }
+    }
+  }
+
+  getLowestTransaction() {
+    this.lowestTransaction = this.payments[0].amount;
+    for(var i = 1; i < this.payments.length; i++) {
+      if(this.payments[i].amount < this.lowestTransaction) {
+        this.lowestTransaction = this.payments[i].amount
+      }
+    }
   }
 
 }

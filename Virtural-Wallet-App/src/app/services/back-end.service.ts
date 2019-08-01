@@ -23,7 +23,7 @@ export class BackEndService {
     
     post(path: string, data: any) {
         return this.http.post(this.url + path, JSON.stringify(data), {
-            headers: new Headers({'Content-Type': 'application/json'})
+            headers: new HttpHeaders({'Content-Type': 'application/json'})
         });
     }
 
