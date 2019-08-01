@@ -11,12 +11,12 @@ import java.util.UUID;
 
 @NoArgsConstructor
 @Data
-public class TransactionSettlementDto implements Serializable {
+public class PaymentSettlementDto implements Serializable {
 
-    @ApiModelProperty(name = "transaction-id", example = "43fca28f-219e-4f16-9079-ec8e7d18f62a",
-            notes = "The transaction id")
-    @JsonProperty(value = "transaction-id")
+    @ApiModelProperty(name = "Payment-id", example = "43fca28f-219e-4f16-9079-ec8e7d18f62a",
+            notes = "The Payment id")
+    @JsonProperty(value = "Payment-id")
     @NotNull
-    private UUID transactionId;
+    private UUID PaymentId;
 
 }

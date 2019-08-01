@@ -37,9 +37,6 @@ public class CustomerEntity {
     @OneToMany
     private List<AccountEntity> accounts = new ArrayList<>();
 
-    @OneToMany
-    private List<TransactionEntity> transactions = new ArrayList<>();
-
     @Column(name="`password`")
     private String password;
 }

@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "transactionId",
+        "PaymentId",
         "fromAccountNumber",
         "fromAccountOpeningBalance",
         "toAccountNumber",
@@ -27,13 +27,13 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Builder
-public class TransactionDto implements Serializable {
+public class PaymentDto implements Serializable {
 
-    @ApiModelProperty(name = "transaction-id", example = "3b385ef0-d76c-4f0f-add8-b4ecf41874d6",
-            notes = "The unique id of the transaction")
-    @JsonProperty(value = "transaction-id")
+    @ApiModelProperty(name = "Payment-id", example = "3b385ef0-d76c-4f0f-add8-b4ecf41874d6",
+            notes = "The unique id of the Payment")
+    @JsonProperty(value = "Payment-id")
     @NotNull
-    private UUID transactionId;
+    private UUID PaymentId;
 
     @ApiModelProperty(name = "from-account-number",
             notes = "The account funds are coming from")
@@ -58,12 +58,12 @@ public class TransactionDto implements Serializable {
     private double toAccountOpeningBalance;
 
     @ApiModelProperty(name = "amount", example = "500.00",
-            notes = "The transaction amount")
+            notes = "The Payment amount")
     @JsonProperty(value = "amount")
     private double amount;
 
     @ApiModelProperty(name = "date-initiation", example = "2019-05-30",
-            notes = "The date on which the transaction was initiated")
+            notes = "The date on which the Payment was initiated")
     @JsonProperty(value = "date-initiation")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 //    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -71,7 +71,7 @@ public class TransactionDto implements Serializable {
     private String dateInitiation;
 
     @ApiModelProperty(name = "date-settlement", example = "2019-05-31",
-            notes = "The date on which the transaction was settled")
+            notes = "The date on which the Payment was settled")
     @JsonProperty(value = "date-settlement")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 //    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -79,15 +79,15 @@ public class TransactionDto implements Serializable {
     private String dateSettlement;
 
     @ApiModelProperty(name = "settled", example = "true",
-            notes = "Whether or not the transaction has been settled")
+            notes = "Whether or not the Payment has been settled")
     @JsonProperty(value = "settled")
     private int settled;
 
-    public TransactionDto() {
-        this.transactionId = UUID.randomUUID();
+    public PaymentDto() {
+        this.PaymentId = UUID.randomUUID();
     }
 
-    public TransactionDto(
+    public PaymentDto(
             String fromAccountNumber,
             double fromAccountOpeningBalance,
             String toAccountNumber,
@@ -95,7 +95,7 @@ public class TransactionDto implements Serializable {
             double amount,
             String dateInitiation,
             String dateSettlement) {
-        this.transactionId = UUID.randomUUID();
+        this.PaymentId = UUID.randomUUID();
         this.fromAccountNumber = fromAccountNumber;
         this.fromAccountOpeningBalance = fromAccountOpeningBalance;
         this.toAccountNumber = toAccountNumber;

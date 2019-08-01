@@ -15,12 +15,12 @@ import java.util.List;
 @Data
 @Builder
 @Entity
-@Table(name="Transaction")
-public class TransactionEntity {
+@Table(name="Payment")
+public class PaymentEntity {
 
     @Id
-    @Column(name="transactionId")
-    private String transactionId;
+    @Column(name="PaymentId")
+    private String PaymentId;
 
     @Column(name="fromAccountNumber")
     private String fromAccountNumber;

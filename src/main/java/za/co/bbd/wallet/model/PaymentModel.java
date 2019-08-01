@@ -11,10 +11,10 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Builder
-public class TransactionModel {
+public class PaymentModel {
 
     @NotNull
-    private UUID transactionId;
+    private UUID PaymentId;
 
     @NotNull
     private String fromAccountNumber;
@@ -38,11 +38,11 @@ public class TransactionModel {
     @NotNull
     private int settled;
 
-    public TransactionModel() {
-        this.transactionId = UUID.randomUUID();
+    public PaymentModel() {
+        this.PaymentId = UUID.randomUUID();
     }
 
-    public TransactionModel(
+    public PaymentModel(
             @NotNull String fromAccountNumber,
             @NotNull String fromAccountOpeningBalance,
             @NotNull String toAccountNumber,
@@ -50,7 +50,7 @@ public class TransactionModel {
             @NotNull double amount,
             LocalDate dateInitiation,
             LocalDate dateSettlement) {
-        this.transactionId = UUID.randomUUID();
+        this.PaymentId = UUID.randomUUID();
         this.fromAccountNumber = fromAccountNumber;
         this.fromAccountOpeningBalance = fromAccountOpeningBalance;
         this.toAccountNumber = toAccountNumber;

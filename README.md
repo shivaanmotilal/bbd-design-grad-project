@@ -1,7 +1,7 @@
 # Virtual Wallet
 
-A payments API for a virtual wallet. The api needs to be able to create a profile,
-add money to my wallet, pay another profile, use a two-step payment model (authorise
+A Payments API for a virtual wallet. The api needs to be able to create a profile,
+add money to my wallet, pay another profile, use a two-step Payment model (authorise
 and then settle).
 
 ## Getting Started

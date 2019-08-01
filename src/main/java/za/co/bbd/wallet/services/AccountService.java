@@ -7,7 +7,7 @@ import za.co.bbd.wallet.api.VirtualWalletController;
 import za.co.bbd.wallet.dto.AuthorizationDto;
 import za.co.bbd.wallet.entity.AccountEntity;
 import za.co.bbd.wallet.entity.CustomerEntity;
-import za.co.bbd.wallet.entity.TransactionEntity;
+import za.co.bbd.wallet.entity.PaymentEntity;
 import za.co.bbd.wallet.exceptions.NotFoundException;
 import za.co.bbd.wallet.exceptions.UnauthorizedException;
 import za.co.bbd.wallet.repository.AccountRepository;
@@ -40,8 +40,8 @@ public class AccountService {
         return fromAccount;
     }
 
-    public AccountEntity findPayerAccount(TransactionEntity transaction) throws NotFoundException{
-        var fromAccountOptional = accountRepository.findById(transaction.getFromAccountNumber());
+    public AccountEntity findPayerAccount(PaymentEntity Payment) throws NotFoundException{
+        var fromAccountOptional = accountRepository.findById(Payment.getFromAccountNumber());
         if (fromAccountOptional.isEmpty()) {
             throw new NotFoundException("Payer account not found");
         }
@@ -49,8 +49,8 @@ public class AccountService {
         return fromAccount;
     }
 
-    public AccountEntity findReceiverAccount(TransactionEntity transaction) throws NotFoundException{
-        var toAccountOptional = accountRepository.findById(transaction.getToAccountNumber());
+    public AccountEntity findReceiverAccount(PaymentEntity Payment) throws NotFoundException{
+        var toAccountOptional = accountRepository.findById(Payment.getToAccountNumber());
         if (toAccountOptional.isEmpty()) {
             throw new NotFoundException("Beneficiary account not found");
         }

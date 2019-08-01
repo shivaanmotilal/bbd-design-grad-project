@@ -25,7 +25,7 @@ public class AuthorizationDto implements Serializable {
     private String toAccountNumber;
 
     @ApiModelProperty(name = "amount",
-            notes = "The transaction amount")
+            notes = "The Payment amount")
     @JsonProperty(value = "amount")
     private double amount;
 

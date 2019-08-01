@@ -31,5 +31,5 @@ public class AccountEntity {
     private int closedAccount;
 
     @ManyToMany
-    private List<TransactionEntity> transactions = new ArrayList<>();
+    private List<PaymentEntity> Payments = new ArrayList<>();
 }

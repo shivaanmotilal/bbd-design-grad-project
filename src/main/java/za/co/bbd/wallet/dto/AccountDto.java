@@ -22,7 +22,7 @@ import java.util.UUID;
         "balance",
         "availableBalance",
         "closed",
-        "transactions"})
+        "Payments"})
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -55,9 +55,9 @@ public class AccountDto implements Serializable {
     @NotNull
     private int closed;
 
-    @ApiModelProperty(name = "transactions",
-            notes = "A list of transactionEntities associated with the account")
-    @JsonProperty(value = "transactions")
+    @ApiModelProperty(name = "Payments",
+            notes = "A list of PaymentEntities associated with the account")
+    @JsonProperty(value = "Payments")
     @NotNull
-    private List<UUID> transactions;
+    private List<UUID> Payments;
 }
