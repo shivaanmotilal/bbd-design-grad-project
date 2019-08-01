@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 @NoArgsConstructor
 @Data
+@Component("wallet.AuthorizationDto")
 public class AuthorizationDto implements Serializable {
 
     @ApiModelProperty(name = "from-account-number", example = "100009275",

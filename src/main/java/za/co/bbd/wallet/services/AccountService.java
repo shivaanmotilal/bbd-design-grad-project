@@ -2,6 +2,9 @@ package za.co.bbd.wallet.services;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 import za.co.bbd.wallet.api.VirtualWalletController;
 import za.co.bbd.wallet.dto.AuthorizationDto;
@@ -17,6 +20,13 @@ public class AccountService {
     private AccountRepository accountRepository;
     Logger LOGGER = LoggerFactory.getLogger(AccountService.class);
     AuthorizationDto authorizationDto;
+
+    @Autowired
+    private AccountService(@Qualifier("wallet.AuthorizationDto") AuthorizationDto authorizationDto, AccountRepository accountRepository){
+
+        this.authorizationDto= authorizationDto;
+        this.accountRepository= accountRepository;
+    }
 
     public AccountEntity findAccount(CustomerEntity customer, String accountNumber) throws NotFoundException{
         var accountOptional =  customer.getAccounts().stream().filter(accountEntity -> accountEntity.getAccountNumber().equals(accountNumber)).findFirst();
