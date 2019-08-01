@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { LoginService } from '../services/login.service';
+import { LoginService } from '../login/login.service';
 import { Customer } from '../models/customer';
 import { Observable } from 'rxjs';
 import { NgForm, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';

@@ -2,22 +2,24 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { from, Observable } from 'rxjs';
 import { Customer } from '../models/customer';
-import { BackEndService } from './back-end.service';
+import { BackEndService } from '../services/back-end.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginService {
-  path: string;
+  path: string = 'TODO: only path that starts with /';
 
   constructor(private backendService: BackEndService) {
   }
 
-  Login(model: any) {
-    return this.backendService.post(this.path, model);
+  Login(model: LoginModel) {
+    const uniquePath = this.path + '';
+    return this.backendService.post(uniquePath, model);
   }
 
   CreateUser(customer: Customer) {
-    return this.backendService.post(this.path, customer);
+    const uniquePath = this.path + '';
+    return this.backendService.post(uniquePath, customer);
   }
 }
