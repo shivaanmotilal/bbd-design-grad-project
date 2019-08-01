@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -27,6 +28,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Builder
+@Component("wallet.PaymentDto")
 public class PaymentDto implements Serializable {
 
     @ApiModelProperty(name = "Payment-id", example = "3b385ef0-d76c-4f0f-add8-b4ecf41874d6",

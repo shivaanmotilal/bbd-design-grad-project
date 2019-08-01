@@ -2,6 +2,7 @@ package za.co.bbd.wallet.services;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import za.co.bbd.wallet.dto.AuthorizationDto;
 import za.co.bbd.wallet.dto.PaymentDto;
@@ -21,9 +22,15 @@ import java.util.stream.Collectors;
 @Service("wallet.PaymentService")
 public class PaymentService {
     Logger LOGGER = LoggerFactory.getLogger(PaymentService.class);
-    private PaymentRepository PaymentRepository;
+    private PaymentRepository paymentRepository;
     private AuthorizationDto authorizationDto;
+    private PaymentEntity paymentEntity;
 
+    public PaymentService(PaymentRepository paymentRepository, @Qualifier("wallet.AuthorizationDto") AuthorizationDto authorizationDto, @Qualifier("wallet.PaymentDto") PaymentDto paymentDto){
+        this.paymentRepository=paymentRepository;
+        this.authorizationDto= authorizationDto;
+        this.paymentEntity= paymentEntity;
+    }
     public Iterator<PaymentEntity> getUserPayments(CustomerEntity customer, String accountNumber) throws NotFoundException {
 
         var accountOptional = customer.getAccounts().stream().filter(accountEntity -> accountEntity.getAccountNumber().equals(accountNumber)).findFirst();
@@ -32,22 +39,22 @@ public class PaymentService {
             throw new NotFoundException("Account not Found");
         }
 
-        var PaymentIds = accountOptional.get().getPayments();
+        var paymentIds = accountOptional.get().getPayments();
 
-        var PaymentEntityIterator = PaymentRepository.findAllById(PaymentIds.stream().map(PaymentEntity -> {
+        var paymentEntityIterator = paymentRepository.findAllById(paymentIds.stream().map(PaymentEntity -> {
             return PaymentEntity.getPaymentId();
         }).collect(Collectors.toList())).iterator();
 
-        return PaymentEntityIterator;
+        return paymentEntityIterator;
     }
 
-    public PaymentEntity findPayment(PaymentSettlementDto PaymentSettlementDto) throws NotFoundException{
-        var PaymentOptional = PaymentRepository.findById(PaymentSettlementDto.getPaymentId().toString());
-        if (PaymentOptional.isEmpty()) {
+    public PaymentEntity findPayment(PaymentSettlementDto paymentSettlementDto) throws NotFoundException{
+        var paymentOptional = paymentRepository.findById(paymentSettlementDto.getPaymentId().toString());
+        if (paymentOptional.isEmpty()) {
             throw new NotFoundException("Payment not found");
         }
-        var Payment = PaymentOptional.get();
-        return Payment;
+        var payment = paymentOptional.get();
+        return payment;
     }
 
     public PaymentDto savePayment(AccountEntity fromAccount, AccountEntity toAccount){
@@ -77,7 +84,7 @@ public class PaymentService {
                 .PaymentId(PaymentId.toString())
                 .build();
 
-        PaymentRepository.save(paymentEntity);
+        paymentRepository.save(paymentEntity);
 
         return paymentDto;
     }
@@ -99,7 +106,7 @@ public class PaymentService {
                 .PaymentId(UUID.fromString(Payment.getPaymentId()))
                 .build();
 
-        PaymentRepository.save(Payment);
+        paymentRepository.save(Payment);
         return paymentDto;
     }
 }

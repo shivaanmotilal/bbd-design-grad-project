@@ -2,6 +2,7 @@ package za.co.bbd.wallet.services;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import za.co.bbd.wallet.dto.CustomerDto;
 import za.co.bbd.wallet.dto.NewCustomerDto;
@@ -11,6 +12,7 @@ import za.co.bbd.wallet.exceptions.ForbiddenException;
 import za.co.bbd.wallet.exceptions.NotFoundException;
 import za.co.bbd.wallet.repository.CustomerRepository;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
@@ -21,9 +23,14 @@ public class CustomerService {
     Logger LOGGER = LoggerFactory.getLogger(CustomerService.class);
     private CustomerRepository customerRepository;
 
+    @Autowired
+    private CustomerService(CustomerRepository customerRepository){
+        this.customerRepository= customerRepository;
+    }
+
     public CustomerEntity findCustomer(String customerId, String password) throws ForbiddenException, NotFoundException{
         // customer findCustomer(customerId)
-        var customerOptional = customerRepository.findById(customerId);
+        var customerOptional = this.customerRepository.findById(customerId);
         if (customerOptional.isEmpty()) {
             LOGGER.info("CUSTOMER (" + customerId +") NOT FOUND");
             throw new NotFoundException("Customer not Found");

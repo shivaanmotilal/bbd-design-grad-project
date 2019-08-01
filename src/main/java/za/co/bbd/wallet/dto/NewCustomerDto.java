@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -13,6 +14,7 @@ import java.io.Serializable;
 //@AllArgsConstructor
 @Data
 //@Builder
+@Component("wallet.NewCustomerDto")
 public class NewCustomerDto implements Serializable {
 
     @ApiModelProperty(name = "first-name", example = "Shai",

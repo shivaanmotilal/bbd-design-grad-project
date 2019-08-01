@@ -7,9 +7,18 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DashboardComponent implements OnInit {
 
+  transactions = null;
+  highestTransaction = null;
+  lowestTransaction = null;
+  accountBalance = null;
+
   constructor() { }
 
   ngOnInit() {
+    this.transactions = [".....", "....", "....","", ""];
+    this.highestTransaction = 1000.00;
+    this.lowestTransaction = 20.00;
+    this.accountBalance = 800.65
   }
 
 }
