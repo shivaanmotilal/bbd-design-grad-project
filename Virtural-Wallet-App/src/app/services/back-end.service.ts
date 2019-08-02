@@ -12,17 +12,14 @@ export class BackEndService {
 
     }
 
-    get(path: string, otherUrl: boolean = false) {
-        if (!otherUrl)
-            return this.http.get(this.url + path);
-        else
-        {
-            return this.http.get(path);
-        } 
+    get(path: string) {
+        const completePath = this.url + path;
+        return this.http.get(completePath);
     }
     
     post(path: string, data: any) {
-        return this.http.post(this.url + path, JSON.stringify(data), {
+        const completePath = this.url + path;
+        return this.http.post(completePath, JSON.stringify(data), {
             headers: new HttpHeaders({'Content-Type': 'application/json'})
         });
     }
