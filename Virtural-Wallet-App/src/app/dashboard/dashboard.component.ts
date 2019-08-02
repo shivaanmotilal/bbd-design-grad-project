@@ -38,14 +38,6 @@ export class DashboardComponent implements OnInit {
         });
       });
     });
-    // this.cdr.detectChanges();
-  }
-
-  getPayments() {
-    
-    // this.paymentService.getPayments().subscribe((data: {}) => {
-    //   this.payments = data;
-    // });
   }
 
   getHighestTransaction() {

@@ -13,14 +13,14 @@
             <div class="row flex-fill">
                 <div class="col-12">
                     <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
-                        <strong class="d-block text-gray-dark ">From Account: {{ payment.fromAccountNumber }} ( Opening Balance: {{ payment.fromAccountOpeningBalance | currency:'R' }} ) 
+                        <strong class="d-block text-gray-dark ">From Account: {{ payment["from-account-number"] }} ( Opening Balance: {{ payment["from-account-opening-balance"] | currency:'R' }} ) 
                                 </strong>
-                        <strong class="d-block text-gray-dark">To Account: {{ payment.toAccountNumber }} ( Opening Balance: {{ payment.toAccountOpeningBalance | currency:'R' }} ) 
+                        <strong class="d-block text-gray-dark">To Account: {{ payment["to-account-number"] }} ( Opening Balance: {{ payment["to-account-opening-balance"] | currency:'R' }} ) 
                                 </strong>
                     </p>
                     <div class="float-right">
-                        <small class="text-right p-3">Initiation Date: {{ payment.dateInitiation }}</small>
-                        <small class="text-right p-3">Settlement Date: {{ payment.dateSettlement }}</small>
+                        <small class="text-right p-3">Initiation Date: {{ payment["date-initiation"] }}</small>
+                        <small class="text-right p-3">Settlement Date: {{ payment["date-settlement"] }}</small>
                     </div>
                 </div>
             </div>
