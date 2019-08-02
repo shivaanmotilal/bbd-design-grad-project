@@ -20,7 +20,7 @@ export class BackEndService {
     post(path: string, data: any) {
         const completePath = this.url + path;
         return this.http.post(completePath, JSON.stringify(data), {
-            headers: new Headers({'Content-Type': 'application/json'})
+            headers: new HttpHeaders({'Content-Type': 'application/json'})
         });
     }
 }
