@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoginService } from '../login.service';
 import { FormsModule } from '@angular/forms';
+import { LoginService } from '../login/login.service';
+import { Customer } from '../models/customer';
+import { Observable } from 'rxjs';
+import { NgForm, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-login',
@@ -11,32 +14,23 @@ import { FormsModule } from '@angular/forms';
 export class LoginComponent implements OnInit {
 
   model: any = {};
+  loginForm: any;
 
   errorMessage: string;
-  constructor(private router: Router, private LoginService: LoginService) { }
+  constructor(private router: Router, private LoginService: LoginService, private formbuilder: FormBuilder) { }
 
 
   ngOnInit() {
-    /*sessionStorage.removeItem('UserName');
-    sessionStorage.clear();*/
+    sessionStorage.removeItem('UserName');
+    sessionStorage.clear();
+    this.loginForm = this.formbuilder.group({
+      Email: ['', [Validators.required]],
+      Password: ['', [Validators.required]],
+    });
   }
   
-  /*login() {
-    debugger;
-    this.LoginService.Login(this.model).subscribe(
-      data => {
-        debugger;
-        if (data.Status == "Success") {
-          this.router.navigate(['/Dashboard']);
-          debugger;
-        }
-        else {
-          this.errorMessage = data.Message;
-        }
-      },
-      error => {
-        this.errorMessage = error.message;
-      });
-  };*/
+  login() {
+    this.router.navigate(['/dashboard']);
+  };
 
 }

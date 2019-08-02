@@ -1,4 +1,4 @@
-import { Transaction } from './transaction';
+import { Payment } from './payment';
 
 export class Account {
     constructor(
@@ -6,6 +6,6 @@ export class Account {
         public balance: number,
         public availableBalance: number,
         public closed: number,
-        public transactions: Transaction[]
+        public payments: Payment[]
     ) { }
 }

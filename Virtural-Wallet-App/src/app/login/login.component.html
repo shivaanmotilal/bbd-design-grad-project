@@ -1,11 +1,13 @@
 <div class="signin text-center">
-    <form class="form-signin">
+    <form class="form-signin" [formGroup]="loginForm" (ngSubmit)="login()">
         <img class="mb-4" src="assets/wallet.png" alt="" width="72" height="72" />
         <h1 class="h3 mb-3 font-weight-normal">Account Login</h1>
         <label for="inputEmail" class="sr-only">Email address</label>
-        <input type="email" id="inputEmail" class="form-control rounded-0 mb-1" placeholder="Email address" required autofocus>
+        <input formControlName="Email" type="email" id="inputEmail" class="form-control rounded-0 mb-1" placeholder="Email address" required autofocus>
+
         <label for="inputPassword" class="sr-only">Password</label>
-        <input type="password" id="inputPassword" class="form-control rounded-0" placeholder="Password" required>
+        <input formControlName="Password" type="password" id="inputPassword" class="form-control rounded-0" placeholder="Password" required>
+
         <button class="btn btn-lg btn-dark btn-block mb-3 text-uppercase rounded-0" type="submit">Sign in</button>
         <div class="checkbox mb-3">
             <label>Create an account? 

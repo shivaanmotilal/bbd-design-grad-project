@@ -1,40 +1,56 @@
 <app-navbar></app-navbar>
 <div class="container">
-    <div class="d-flex align-items-center p-3 my-3 text-white-50 bg-vw rounded shadow-sm">
-        <img class="mr-3" src="assets/wallet.png" alt="" width="48" height="48">
-        <div class="lh-100">
-            <h5 class="mb-0 text-white lh-100">Account Balance</h5>
-            <h6 class="d-block text-white text-right mt-3">{{ accountBalance | currency:'R' }}</h6>
+    <div *ngFor="let account of accounts" class="p-3 my-3 text-white-50 bg-vw rounded shadow-sm">
+        <img class="mr-3" src="assets/wallet.png" alt="" width="48" height="48"> <span class="text-white lh-100 h5">Account number: {{ account.accountNumber }}</span>
+        <hr class="text-white">
+        <div class="row lh-100 ">
+            <div class="col-4 text-right">
+                <h5 class="mb-0 text-white lh-100 ">Account Balance</h5>
+                <h6 class="d-block text-white mt-3 ">{{ account.availableBalance | currency:'R'}}
+                </h6>
+            </div>
+            <div class="col-4 text-right">
+                <h5 class="mb-0 text-white lh-100 ">Available Balance</h5>
+                <h6 class="d-block text-white mt-3 ">{{ account.availableBalance | currency:'R' }}
+                </h6>
+            </div>
+            <div class="col-4 text-right pr-4">
+                <h5 *ngIf="account.closed == 1" class="mb-0 text-white lh-100 ">Closed</h5>
+                <h5 *ngIf="account.closed == 0" class="mb-0 text-white lh-100 ">Open</h5>
+            </div>
         </div>
     </div>
 
-    <div class="my-3 p-3 bg-white rounded shadow-sm">
-        <h6 class="border-bottom border-gray pb-2 mb-0">Recent Transactions</h6>
-        <div *ngFor="let transaction of transactions" class="media text-muted pt-3">
-            <svg class="bd-placeholder-img mr-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: 32x32">
+    <div class="my-3 p-3 bg-white rounded shadow-sm ">
+        <h6 class="border-bottom border-gray pb-2 mb-0 ">Recent Payments</h6>
+        <div *ngFor="let payment of payments " class="media text-muted pt-3 ">
+            <svg class="bd-placeholder-img mr-2 rounded " width="32 " height="32 " xmlns="http://www.w3.org/2000/svg " preserveAspectRatio="xMidYMid slice " focusable="false " role="img " aria-label="Placeholder: 32x32 ">
                 <title>Placeholder</title>
-                <rect width="100%" height="100%" fill="#007bff" /><text x="50%" y="50%" fill="#007bff"
-                    dy=".3em">32x32</text>
+                <rect *ngIf="payment.settled == 1" width="100% " height="100% " fill="#4caf50" /><text *ngIf="payment.settled == 1" x="50% " y="50% " fill="#4caf50"
+                    dy=".3em ">32x32</text>
+                <rect *ngIf="payment.settled == 0" width="100% " height="100% " fill="#f44336" /><text *ngIf="payment.settled == 0" x="50% " y="50% " fill="#f44336"
+                    dy=".3em ">32x32</text>
             </svg>
-            <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
-                <strong class="d-block text-gray-dark">Account: Account Name</strong> R 100.00
+            <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray ">
+                <strong class="d-block text-gray-dark ">From Account: {{ payment.fromAccountNumber }} >> To Account: {{ payment.toAccountNumber }} </strong> {{ payment.amount | currency:'R'}}
             </p>
+            <small class="text-right p-3">Date: {{ payment.dateInitiation }}</small>
         </div>
-        <small class="d-block text-right mt-3">
+        <small class="d-block text-right mt-3 ">
             <a routerLink="/history">All transactions</a>
         </small>
     </div>
-    <div class="d-flex align-items-center my-3 text-white-50 row">
+    <div class="d-flex align-items-center my-3 text-white-50 row ">
         <div class="lh-100 col bg-vw mr-2 p-3 rounded shadow-sm ">
-            <div class="row">
-                <h5 class="mb-0 text-white lh-100 col">Highest Transaction</h5>
-                <h6 class="d-block text-white col-sm-4">{{ highestTransaction | currency:'R' }}</h6>
+            <div class="row ">
+                <h5 class="mb-0 text-white lh-100 col ">Highest Transaction</h5>
+                <h6 class="d-block text-white col-sm-4 ">{{ highestTransaction | currency:'R' }}</h6>
             </div>
         </div>
         <div class="lh-100 col bg-vw p-3 rounded shadow-sm ">
-            <div class="row">
-                <h5 class="mb-0 text-white lh-100 col">Lowest Transaction</h5>
-                <h6 class="d-block text-white col-sm-4">{{ lowestTransaction | currency:'R'}}</h6>
+            <div class="row ">
+                <h5 class="mb-0 text-white lh-100 col ">Lowest Transaction</h5>
+                <h6 class="d-block text-white col-sm-4 ">{{ lowestTransaction | currency:'R'}}</h6>
             </div>
         </div>
     </div>
