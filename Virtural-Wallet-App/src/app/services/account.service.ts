@@ -19,8 +19,11 @@ export class AccountService {
   }
 
   getAccounts(): Observable<any> {
-    return this.backendService.get(this.path+"5003363").pipe(
-      map(this.extractData));
+    const headers = new HttpHeaders({"Content-Type": "application/json", "user-id": "5003363", "password":"Khaki"});
+    return this.backendService.get(this.path, headers).pipe( // +"5003363"
+      map(a => {
+        return a;
+      }));
   }
 
 }

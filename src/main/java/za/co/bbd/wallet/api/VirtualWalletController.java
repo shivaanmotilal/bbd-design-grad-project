@@ -53,7 +53,7 @@ public class VirtualWalletController {
 
     }
 
-    @CrossOrigin
+    @CrossOrigin(origins = "http://localhost:4200")
     @ApiOperation(value = "Retrieve customer details", notes = "Retrieve customer details")
     @RequestMapping(value = "/customer/{customer-id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @WebMethod(operationName = "GetUser")
@@ -86,7 +86,7 @@ public class VirtualWalletController {
                 .build();
     }
 
-    @CrossOrigin
+    @CrossOrigin(origins = "http://localhost:4200")
     @ApiOperation(value = "Retrieve user accounts", notes = "Retrieve user accounts")
     @RequestMapping(value = "/accounts/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @WebMethod(operationName = "GetAccounts")
@@ -111,7 +111,7 @@ public class VirtualWalletController {
                 ).collect(Collectors.toList());
     }
 
-    @CrossOrigin
+    @CrossOrigin(origins = "http://localhost:4200")
     @ApiOperation(value = "Retrieve specific user account", notes = "Retrieve specific user account")
     @RequestMapping(value = "/accounts/{account-number}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @WebMethod(operationName = "GetAccount")
@@ -139,7 +139,7 @@ public class VirtualWalletController {
                 .build();
     }
 
-    @CrossOrigin
+    @CrossOrigin(origins = "http://localhost:4200")
     @ApiOperation(value = "Retrieve Payments for a specific account", notes = "Retrieve Payments for a specific account")
     @RequestMapping(value = "/Payments/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @WebMethod(operationName = "GetPayments")
@@ -179,7 +179,7 @@ public class VirtualWalletController {
         return PaymentDtos;
     }
 
-    @CrossOrigin
+    @CrossOrigin(origins = "http://localhost:4200")
     @ApiOperation(value = "Create a new Customer", notes = "Create a new Customer")
     @RequestMapping(value = "/customer/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @WebMethod(operationName = "CreateCustomer")
@@ -197,7 +197,7 @@ public class VirtualWalletController {
         return customerDto;
     }
 
-    @CrossOrigin
+    @CrossOrigin(origins = "http://localhost:4200")
     @ApiOperation(value = "Get Payment authorization", notes = "Get authorization for a Payment")
     @RequestMapping(value = "/Payment/authorization/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @WebMethod(operationName = "CreateAuthorization")
@@ -225,7 +225,7 @@ public class VirtualWalletController {
 
     }
 
-    @CrossOrigin
+    @CrossOrigin(origins = "http://localhost:4200")
     @ApiOperation(value = "Settle", notes = "Settle Payment")
     @RequestMapping(value = "/Payment/settlement/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @WebMethod(operationName = "SettlePayment")

@@ -1,17 +1,17 @@
 <app-navbar></app-navbar>
 <div class="container">
     <div *ngFor="let account of accounts" class="p-3 my-3 text-white-50 bg-vw rounded shadow-sm">
-        <img class="mr-3" src="assets/wallet.png" alt="" width="48" height="48"> <span class="text-white lh-100 h5">Account number: {{ account.accountNumber }}</span>
+        <img class="mr-3" src="assets/wallet.png" alt="" width="48" height="48"> <span class="text-white lh-100 h5">Account number: {{ account["account-number"].toString() }}</span>
         <hr class="text-white">
         <div class="row lh-100 ">
             <div class="col-4 text-right">
                 <h5 class="mb-0 text-white lh-100 ">Account Balance</h5>
-                <h6 class="d-block text-white mt-3 ">{{ account.availableBalance | currency:'R'}}
+                <h6 class="d-block text-white mt-3 ">{{ account.balance | currency:'R'}}
                 </h6>
             </div>
             <div class="col-4 text-right">
                 <h5 class="mb-0 text-white lh-100 ">Available Balance</h5>
-                <h6 class="d-block text-white mt-3 ">{{ account.availableBalance | currency:'R' }}
+                <h6 class="d-block text-white mt-3 ">{{ account["available-balance"] | currency:'R' }}
                 </h6>
             </div>
             <div class="col-4 text-right pr-4">
@@ -32,9 +32,9 @@
                     dy=".3em ">32x32</text>
             </svg>
             <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray ">
-                <strong class="d-block text-gray-dark ">From Account: {{ payment.fromAccountNumber }} >> To Account: {{ payment.toAccountNumber }} </strong> {{ payment.amount | currency:'R'}}
+                <strong class="d-block text-gray-dark ">From Account: {{ payment["from-account-number"] }} >> To Account: {{ payment["to-account-number"] }} </strong> {{ payment.amount | currency:'R'}}
             </p>
-            <small class="text-right p-3">Date: {{ payment.dateInitiation }}</small>
+            <small class="text-right p-3">Date: {{ payment["date-initiation"] }}</small>
         </div>
         <small class="d-block text-right mt-3 ">
             <a routerLink="/history">All transactions</a>

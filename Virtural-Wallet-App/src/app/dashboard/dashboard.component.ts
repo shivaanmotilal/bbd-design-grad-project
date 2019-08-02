@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Payment } from '../models/payment';
 import { Account } from '../models/account';
 import { AccountService } from '../services/account.service';
@@ -16,27 +16,36 @@ export class DashboardComponent implements OnInit {
   lowestTransaction: number = 0;
   accounts: any = [];
 
-  constructor(public accountService: AccountService, public paymentService: PaymentService) { }
+  constructor(public accountService: AccountService, public paymentService: PaymentService)
+  { }
 
   ngOnInit() {
     this.getAccounts();
-    this.getPayments();
-    this.getHighestTransaction();
-    this.getLowestTransaction();
   }
 
   getAccounts() {
     this.accounts = [];
+    this.payments = [];
     this.accountService.getAccounts().subscribe((data: {}) => {
       this.accounts = data;
+      this.accounts.forEach(element => {
+        this.paymentService.getPayments(element["account-number"]).subscribe((data1) => {
+          data1.forEach(element1 => {
+            this.payments.push(element1);
+          });
+          this.getHighestTransaction();
+          this.getLowestTransaction();
+        });
+      });
     });
+    // this.cdr.detectChanges();
   }
 
   getPayments() {
-    this.payments = [];
-    this.paymentService.getPayments().subscribe((data: {}) => {
-      this.payments = data;
-    });
+    
+    // this.paymentService.getPayments().subscribe((data: {}) => {
+    //   this.payments = data;
+    // });
   }
 
   getHighestTransaction() {

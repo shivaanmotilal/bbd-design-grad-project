@@ -6,17 +6,17 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 })
 export class BackEndService {
 
-    url: string = 'localhost:8080'; 
+    url: string = 'http://localhost:8080'; 
     
     constructor(private http: HttpClient) { // AngularHttp
 
     }
 
-    get(path: string) {
-        const Headers = new HttpHeaders({"password":"Khaki"})
+    get(path: string, headers: HttpHeaders = null) {
+        
         const completePath = this.url + path;
         console.log('Get path: ', completePath);
-        const receive = this.http.get(completePath, {headers: Headers} );
+        const receive = this.http.get(completePath, {"headers": headers} );
         console.log('Get receive: ', receive);
         return receive;
     }
