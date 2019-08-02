@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import za.co.bbd.wallet.dto.*;
-import za.co.bbd.wallet.entity.TransactionEntity;
+import za.co.bbd.wallet.entity.PaymentEntity;
 import za.co.bbd.wallet.exceptions.BadRequestException;
 import za.co.bbd.wallet.exceptions.ForbiddenException;
 import za.co.bbd.wallet.exceptions.NotFoundException;
@@ -19,7 +19,7 @@ import za.co.bbd.wallet.exceptions.UnauthorizedException;
 import za.co.bbd.wallet.services.AccountService;
 import za.co.bbd.wallet.services.AuthorizationService;
 import za.co.bbd.wallet.services.CustomerService;
-import za.co.bbd.wallet.services.TransactionService;
+import za.co.bbd.wallet.services.PaymentService;
 
 import javax.jws.WebMethod;
 import javax.jws.WebResult;
@@ -36,18 +36,18 @@ public class VirtualWalletController {
     Logger LOGGER = LoggerFactory.getLogger(VirtualWalletController.class);
     private CustomerService customerService;
     private AccountService accountService;
-    private TransactionService transactionService;
+    private PaymentService PaymentService;
     private AuthorizationService authorizationService;
 
     @Autowired
     public VirtualWalletController(
             @Qualifier("wallet.CustomerService") CustomerService customerService,
             @Qualifier("wallet.AccountService") AccountService accountService,
-            @Qualifier("wallet.TransactionService") TransactionService transactionService,
+            @Qualifier("wallet.PaymentService") PaymentService PaymentService,
             @Qualifier("wallet.AuthorizationService") AuthorizationService authorizationService) {
         this.customerService= customerService;
         this.accountService=accountService;
-        this.transactionService=transactionService;
+        this.PaymentService=PaymentService;
         this.authorizationService= authorizationService;
         LOGGER.info("Starting up VirtualWalletController");
 
@@ -77,8 +77,8 @@ public class VirtualWalletController {
                             .balance(account.getAccountBalance())
                             .availableBalance(account.getAvailableBalance())
                             .closed(account.getClosedAccount())
-                            .transactions(account.getTransactions().stream().map(
-                                transactionEntity -> UUID.fromString(transactionEntity.getTransactionId())
+                            .Payments(account.getPayments().stream().map(
+                                PaymentEntity -> UUID.fromString(PaymentEntity.getPaymentId())
                             ).collect(Collectors.toList()))
                             .build()
                 ).collect(Collectors.toList()))
@@ -102,8 +102,8 @@ public class VirtualWalletController {
                                 .balance(account.getAccountBalance())
                                 .availableBalance(account.getAvailableBalance())
                                 .closed(account.getClosedAccount())
-                                .transactions(account.getTransactions().stream().map(
-                                        transactionEntity -> UUID.fromString(transactionEntity.getTransactionId())
+                                .Payments(account.getPayments().stream().map(
+                                        PaymentEntity -> UUID.fromString(PaymentEntity.getPaymentId())
                                 ).collect(Collectors.toList()))
                                 .build()
                 ).collect(Collectors.toList());
@@ -130,17 +130,17 @@ public class VirtualWalletController {
                 .balance(account.getAccountBalance())
                 .availableBalance(account.getAvailableBalance())
                 .closed(account.getClosedAccount())
-                .transactions(account.getTransactions().stream().map(
-                        transactionEntity -> UUID.fromString(transactionEntity.getTransactionId())
+                .Payments(account.getPayments().stream().map(
+                        PaymentEntity -> UUID.fromString(PaymentEntity.getPaymentId())
                 ).collect(Collectors.toList()))
                 .build();
     }
 
-    @ApiOperation(value = "Retrieve transactions for a specific account", notes = "Retrieve transactions for a specific account")
-    @RequestMapping(value = "/transactions/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @WebMethod(operationName = "GetTransactions")
-    @WebResult(name = "Transaction")
-    public List<TransactionDto> getTransactions(
+    @ApiOperation(value = "Retrieve Payments for a specific account", notes = "Retrieve Payments for a specific account")
+    @RequestMapping(value = "/Payments/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @WebMethod(operationName = "GetPayments")
+    @WebResult(name = "Payment")
+    public List<PaymentDto> getPayments(
             @ApiParam(name = "user-id", value = "The user id", required = true)
             @RequestHeader(name = "user-id") String userId,
             @ApiParam(name = "password", value = "The user password", required = true)
@@ -149,12 +149,12 @@ public class VirtualWalletController {
             @RequestHeader(name = "account-number") String accountNumber)
             throws ForbiddenException, NotFoundException {
         var customer= customerService.findCustomer(userId,password);
-        var transactionEntityIterator= transactionService.getUserTransactions(customer, accountNumber);
+        var PaymentEntityIterator= PaymentService.getUserPayments(customer, accountNumber);
 
-        List<TransactionDto> transactionDtos = new ArrayList<>();
-        while (transactionEntityIterator.hasNext()) {
-            TransactionEntity entity = transactionEntityIterator.next();
-            transactionDtos.add(TransactionDto.builder()
+        List<PaymentDto> PaymentDtos = new ArrayList<>();
+        while (PaymentEntityIterator.hasNext()) {
+            PaymentEntity entity = PaymentEntityIterator.next();
+            PaymentDtos.add(PaymentDto.builder()
                     .amount(entity.getAmount())
                     .dateInitiation(entity.getDateInitiation().toLocalDate().toString())
                     .dateSettlement(entity.getDateSettlement().toLocalDate().toString())
@@ -163,16 +163,16 @@ public class VirtualWalletController {
                     .settled(entity.getSettled())
                     .toAccountNumber(entity.getToAccountNumber())
                     .toAccountOpeningBalance(entity.getToAccountOpeningBalance())
-                    .transactionId(UUID.fromString(entity.getTransactionId()))
+                    .PaymentId(UUID.fromString(entity.getPaymentId()))
                     .build());
         }
 
-        if (transactionDtos.isEmpty()) {
-            LOGGER.info("NO TRANSACTIONS FOUND");
-            throw new NotFoundException("Transactions not Found");
+        if (PaymentDtos.isEmpty()) {
+            LOGGER.info("NO PaymentS FOUND");
+            throw new NotFoundException("Payments not Found");
         }
 
-        return transactionDtos;
+        return PaymentDtos;
     }
 
     @ApiOperation(value = "Create a new Customer", notes = "Create a new Customer")
@@ -192,18 +192,18 @@ public class VirtualWalletController {
         return customerDto;
     }
 
-    @ApiOperation(value = "Get payment authorization", notes = "Get authorization for a payment")
-    @RequestMapping(value = "/payment/authorization/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Get Payment authorization", notes = "Get authorization for a Payment")
+    @RequestMapping(value = "/Payment/authorization/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @WebMethod(operationName = "CreateAuthorization")
-    @WebResult(name = "Transaction")
+    @WebResult(name = "Payment")
     @ResponseBody
     @ResponseStatus(value = HttpStatus.CREATED)
-    public TransactionDto doAuthorization(
+    public PaymentDto doAuthorization(
             @ApiParam(name = "customer-id", value = "The customer id", required = true)
             @RequestHeader(name = "customer-id") String customerId,
             @ApiParam(name = "password", value = "The user password", required = true)
             @RequestHeader(name = "password") String password,
-            @ApiParam(name = "authorization", value = "Request to authorize a payment", required = true)
+            @ApiParam(name = "authorization", value = "Request to authorize a Payment", required = true)
             @RequestBody AuthorizationDto authorizationDto)
             throws NotFoundException, UnauthorizedException, ForbiddenException {
 
@@ -213,29 +213,29 @@ public class VirtualWalletController {
         var toAccount= accountService.findBeneficiaryAccount();
         accountService.updateAvailableCustomerBalance(fromAccount);
         accountService.updateBeneficiaryAccountBalance(toAccount);
-        var transactionDto= transactionService.saveTransaction(fromAccount, toAccount);
+        var PaymentDto= PaymentService.savePayment(fromAccount, toAccount);
 
-        return transactionDto;
+        return PaymentDto;
 
     }
 
-    @ApiOperation(value = "Settle", notes = "Settle payment")
-    @RequestMapping(value = "/payment/settlement/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    @WebMethod(operationName = "SettleTransaction")
-    @WebResult(name = "Transaction")
+    @ApiOperation(value = "Settle", notes = "Settle Payment")
+    @RequestMapping(value = "/Payment/settlement/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @WebMethod(operationName = "SettlePayment")
+    @WebResult(name = "Payment")
     @ResponseBody
     @ResponseStatus(value = HttpStatus.CREATED)
-    public TransactionDto settleTransaction(
-            @ApiParam(name = "transaction-settlement", value = "The transaction id to be settled", required = true)
-            @RequestBody TransactionSettlementDto transactionSettlementDto)
+    public PaymentDto settlePayment(
+            @ApiParam(name = "Payment-settlement", value = "The Payment id to be settled", required = true)
+            @RequestBody PaymentSettlementDto PaymentSettlementDto)
             throws NotFoundException, UnauthorizedException, ForbiddenException {
 
-        var transaction= transactionService.findTransaction(transactionSettlementDto);
-        var fromAccount = accountService.findPayerAccount(transaction);
-        var toAccount = accountService.findReceiverAccount(transaction);
-        var transactionDto= transactionService.settleTransaction(fromAccount, toAccount, transaction);
+        var Payment= PaymentService.findPayment(PaymentSettlementDto);
+        var fromAccount = accountService.findPayerAccount(Payment);
+        var toAccount = accountService.findReceiverAccount(Payment);
+        var PaymentDto= PaymentService.settlePayment(fromAccount, toAccount, Payment);
 
-        return transactionDto;
+        return PaymentDto;
 
     }
 }

@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -28,6 +29,7 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @Builder
+@Component("wallet.CustomerDto")
 public class CustomerDto implements Serializable {
 
     @ApiModelProperty(name = "customer-id", example = "5000328",

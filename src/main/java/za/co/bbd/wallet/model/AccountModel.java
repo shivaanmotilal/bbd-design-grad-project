@@ -28,12 +28,12 @@ public class AccountModel {
     @NotNull
     private int closed;
 
-    private List<UUID> transactions;
+    private List<UUID> Payments;
 
-    public void addTransaction(UUID transactionId) {
-        if (transactions == null) {
-            transactions = new ArrayList<>();
+    public void addPayment(UUID PaymentId) {
+        if (Payments == null) {
+            Payments = new ArrayList<>();
         }
-        transactions.add(transactionId);
+        Payments.add(PaymentId);
     }
 }
