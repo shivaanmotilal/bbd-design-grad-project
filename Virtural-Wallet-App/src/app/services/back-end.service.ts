@@ -13,14 +13,21 @@ export class BackEndService {
     }
 
     get(path: string) {
+        
         const completePath = this.url + path;
-        return this.http.get(completePath);
+        console.log('Get path: ', completePath);
+        const receive = this.http.get(completePath);
+        console.log('Get receive: ', receive);
+        return receive;
     }
     
     post(path: string, data: any) {
         const completePath = this.url + path;
-        return this.http.post(completePath, JSON.stringify(data), {
+        console.log('Post path: ', completePath);
+        const receive = this.http.post(completePath, JSON.stringify(data), {
             headers: new HttpHeaders({'Content-Type': 'application/json'})
         });
+        console.log('Post receive: ', receive);
+        return receive;
     }
 }
