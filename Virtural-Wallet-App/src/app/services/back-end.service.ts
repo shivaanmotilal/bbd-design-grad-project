@@ -13,10 +13,10 @@ export class BackEndService {
     }
 
     get(path: string) {
-        
+        const Headers = new HttpHeaders({"password":"Khaki"})
         const completePath = this.url + path;
         console.log('Get path: ', completePath);
-        const receive = this.http.get(completePath);
+        const receive = this.http.get(completePath, {headers: Headers} );
         console.log('Get receive: ', receive);
         return receive;
     }
