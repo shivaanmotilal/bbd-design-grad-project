@@ -14,7 +14,7 @@ export class BackEndService {
 
     get(path: string) {
         const completePath = this.url + path;
-        return this.http.get();
+        return this.http.get(completePath);
     }
     
     post(path: string, data: any) {
